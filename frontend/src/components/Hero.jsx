@@ -1,69 +1,57 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import axios from 'axios';
+import React, { useEffect, useRef, useMemo } from 'react';
 import DOMPurify from 'dompurify';
 import { Button } from './ui/button';
 import { ArrowRight } from 'lucide-react';
+import useApiData from '../hooks/useApiData';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
+const defaultContent = {
+  brandName: 'Mantez Reels',
+  tagline: "hello, I'm Manos - a videographer, photographer,",
+  tagline2: 'and designer, based in Greece.',
+  description: 'I bring ideas to life through cinematic visuals and complete creative direction.',
+  availabilityBadge: 'Available for Inquiries',
+  ctaText: 'Send me a message',
+};
 
 const Hero = ({ editorContent, isInEditor }) => {
   const heroRef = useRef(null);
-  const [content, setContent] = useState({
-    brandName: 'Mantez Reels',
-    tagline: "hello, I'm Manos - a videographer, photographer,",
-    tagline2: 'and designer, based in Greece.',
-    description: 'I bring ideas to life through cinematic visuals and complete creative direction.',
-    availabilityBadge: 'Available for Inquiries',
-    ctaText: 'Send me a message',
-  });
-  const [, setLoading] = useState(true);
 
-  const fetchContent = useCallback(async (signal) => {
-    try {
-      const response = await axios.get(`${BACKEND_URL}/api/content/hero`, { signal });
-      if (response.data.content) {
-        const data = response.data.content;
-        setContent({
-          brandName: data.brand_name || 'Mantez Reels',
-          tagline: data.tagline_line1 || "hello, I'm Manos - a videographer, photographer,",
-          tagline2: data.tagline_line2 || 'and designer, based in Greece.',
-          description:
-            data.description ||
-            'I bring ideas to life through cinematic visuals and complete creative direction.',
-          availabilityBadge: data.availability_badge || 'Available for Inquiries',
-          ctaText: data.cta_button_text || 'Send me a message',
-        });
-      }
-    } catch (error) {
-      if (error.name === 'AbortError' || error.code === 'ERR_CANCELED') return;
-      console.error('Failed to fetch hero content:', error);
+  const { data: apiContent } = useApiData(
+    isInEditor ? null : '/api/content/hero',
+    {
+      initialData: null,
+      transform: (resp) => {
+        if (!resp.content) return null;
+        const data = resp.content;
+        return {
+          brandName: data.brand_name || defaultContent.brandName,
+          tagline: data.tagline_line1 || defaultContent.tagline,
+          tagline2: data.tagline_line2 || defaultContent.tagline2,
+          description: data.description || defaultContent.description,
+          availabilityBadge: data.availability_badge || defaultContent.availabilityBadge,
+          ctaText: data.cta_button_text || defaultContent.ctaText,
+        };
+      },
     }
-    setLoading(false);
-  }, []);
+  );
 
-  useEffect(() => {
-    // If editor content provided, use it immediately
+  const content = useMemo(() => {
     if (isInEditor && editorContent) {
-      setContent({
-        brandName: editorContent.brand_name || content.brandName,
-        tagline: editorContent.tagline_line1 || content.tagline,
-        tagline2: editorContent.tagline_line2 || content.tagline2,
-        description: editorContent.description || content.description,
-        availabilityBadge: editorContent.availability_badge || content.availabilityBadge,
-        ctaText: editorContent.cta_button_text || content.ctaText,
-        // Add font families
+      return {
+        ...defaultContent,
+        brandName: editorContent.brand_name || defaultContent.brandName,
+        tagline: editorContent.tagline_line1 || defaultContent.tagline,
+        tagline2: editorContent.tagline_line2 || defaultContent.tagline2,
+        description: editorContent.description || defaultContent.description,
+        availabilityBadge: editorContent.availability_badge || defaultContent.availabilityBadge,
+        ctaText: editorContent.cta_button_text || defaultContent.ctaText,
         brandNameFontFamily: editorContent.brand_name_font_family,
         taglineFontFamily: editorContent.tagline_font_family,
         descriptionFontFamily: editorContent.description_font_family,
-      });
-      return;
+      };
     }
-
-    // Otherwise fetch from API
-    const controller = new AbortController();
-    fetchContent(controller.signal);
-    return () => controller.abort();
-  }, [fetchContent, isInEditor, editorContent, content.brandName, content.tagline, content.tagline2, content.description, content.availabilityBadge, content.ctaText]);
+    return apiContent || defaultContent;
+  }, [isInEditor, editorContent, apiContent]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(

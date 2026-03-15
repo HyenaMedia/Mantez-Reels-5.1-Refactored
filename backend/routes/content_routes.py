@@ -1,6 +1,5 @@
 import os
 import sys
-from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
@@ -9,6 +8,7 @@ from auth import require_auth
 
 # Add parent directory to path to import security_utils
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from utils.constants import utcnow
 
 router = APIRouter(prefix="/api/content", tags=["content"])
 
@@ -150,7 +150,7 @@ async def update_hero(content: HeroContent, current_user: dict = Depends(require
             '$set': {
                 'section': 'hero',
                 **content.model_dump(),
-                'updated_at': datetime.now(timezone.utc),
+                'updated_at': utcnow(),
                 'updated_by': current_user['user_id']
             }
         },
@@ -200,7 +200,7 @@ async def update_about(content: AboutContent, current_user: dict = Depends(requi
                 'subtitle': content.subtitle,
                 'description': content.description,
                 'image_url': content.image_url,
-                'updated_at': datetime.now(timezone.utc),
+                'updated_at': utcnow(),
                 'updated_by': current_user['user_id']
             }
         },
@@ -250,7 +250,7 @@ async def update_contact_info(content: ContactInfo, current_user: dict = Depends
             '$set': {
                 'section': 'contact-info',
                 **content.model_dump(),
-                'updated_at': datetime.now(timezone.utc),
+                'updated_at': utcnow(),
                 'updated_by': current_user['user_id']
             }
         },
@@ -289,7 +289,7 @@ async def update_footer(content: FooterContent, current_user: dict = Depends(req
             '$set': {
                 'section': 'footer',
                 **content.model_dump(),
-                'updated_at': datetime.now(timezone.utc),
+                'updated_at': utcnow(),
                 'updated_by': current_user['user_id']
             }
         },
@@ -331,7 +331,7 @@ async def update_services(services: list[ServiceItem], current_user: dict = Depe
             '$set': {
                 'section': 'services',
                 'services': [s.model_dump() for s in services],
-                'updated_at': datetime.now(timezone.utc),
+                'updated_at': utcnow(),
                 'updated_by': current_user['user_id']
             }
         },
@@ -372,7 +372,7 @@ async def update_faqs(faqs: list[FAQItem], current_user: dict = Depends(require_
             '$set': {
                 'section': 'faqs',
                 'faqs': [f.model_dump() for f in faqs],
-                'updated_at': datetime.now(timezone.utc),
+                'updated_at': utcnow(),
                 'updated_by': current_user['user_id']
             }
         },
@@ -412,7 +412,7 @@ async def update_testimonials(testimonials: list[TestimonialItem], current_user:
             '$set': {
                 'section': 'testimonials',
                 'testimonials': [t.model_dump() for t in testimonials],
-                'updated_at': datetime.now(timezone.utc),
+                'updated_at': utcnow(),
                 'updated_by': current_user['user_id']
             }
         },
@@ -452,7 +452,7 @@ async def update_blog(posts: list[BlogPost], current_user: dict = Depends(requir
             '$set': {
                 'section': 'blog',
                 'posts': [p.model_dump() for p in posts],
-                'updated_at': datetime.now(timezone.utc),
+                'updated_at': utcnow(),
                 'updated_by': current_user['user_id']
             }
         },
@@ -496,7 +496,7 @@ async def update_section_labels(labels: SectionLabels, current_user: dict = Depe
             '$set': {
                 'section': 'section_labels',
                 **labels.model_dump(),
-                'updated_at': datetime.now(timezone.utc),
+                'updated_at': utcnow(),
                 'updated_by': current_user['user_id']
             }
         },
@@ -533,7 +533,7 @@ async def update_navbar(content: NavbarContent, current_user: dict = Depends(req
             '$set': {
                 'section': 'navbar',
                 **content.model_dump(),
-                'updated_at': datetime.now(timezone.utc),
+                'updated_at': utcnow(),
                 'updated_by': current_user['user_id']
             }
         },
@@ -570,7 +570,7 @@ async def update_scroll_progress(content: ScrollProgressContent, current_user: d
             '$set': {
                 'section': 'scroll_progress',
                 **content.model_dump(),
-                'updated_at': datetime.now(timezone.utc),
+                'updated_at': utcnow(),
                 'updated_by': current_user['user_id']
             }
         },
@@ -608,7 +608,7 @@ async def update_portfolio(content: dict, current_user: dict = Depends(require_a
             '$set': {
                 'section': 'portfolio',
                 **safe_content,
-                'updated_at': datetime.now(timezone.utc),
+                'updated_at': utcnow(),
                 'updated_by': current_user['user_id']
             }
         },
@@ -643,7 +643,7 @@ async def update_faq(content: dict, current_user: dict = Depends(require_auth)):
                 'section': 'faq',
                 'title': content.get('title', 'FAQ'),
                 'subtitle': content.get('subtitle', 'Frequently Asked Questions'),
-                'updated_at': datetime.now(timezone.utc),
+                'updated_at': utcnow(),
                 'updated_by': current_user['user_id']
             }
         },
@@ -680,7 +680,7 @@ async def update_contact(content: dict, current_user: dict = Depends(require_aut
             '$set': {
                 'section': 'contact',
                 **safe_content,
-                'updated_at': datetime.now(timezone.utc),
+                'updated_at': utcnow(),
                 'updated_by': current_user['user_id']
             }
         },

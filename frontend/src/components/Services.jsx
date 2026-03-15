@@ -1,5 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useRef } from 'react';
 import DOMPurify from 'dompurify';
 import {
   Video, Film, Scissors, Sparkles, Palette, Camera, Music, Paintbrush,
@@ -16,9 +15,7 @@ const iconMap = {
   Wand2, Brush, PenTool, Layout, Code, Smartphone, Box, Megaphone,
 };
 
-import { useToast } from '../hooks/use-toast';
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
+import useApiData from '../hooks/useApiData';
 
 const ServiceCard = ({ service, index }) => {
   const cardRef = useRef(null);
@@ -75,29 +72,11 @@ const ServiceCard = ({ service, index }) => {
 
 const Services = () => {
   const titleRef = useRef(null);
-  const [services, setServices] = useState([]);
-  const [, setLoading] = useState(true);
-  const { toast } = useToast();
 
-  useEffect(() => {
-    const controller = new AbortController();
-    const fetchServices = async () => {
-      try {
-        const response = await axios.get(`${BACKEND_URL}/api/content/services`, { signal: controller.signal });
-        if (response.data.services) {
-          setServices(response.data.services);
-        }
-      } catch (error) {
-        if (error.name === 'AbortError' || error.code === 'ERR_CANCELED') return;
-        console.error('Failed to fetch services:', error);
-        toast({ title: 'Failed to load services', variant: 'destructive' });
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchServices();
-    return () => controller.abort();
-  }, []);
+  const { data: services } = useApiData('/api/content/services', {
+    initialData: [],
+    transform: (resp) => resp.services || [],
+  });
 
   useEffect(() => {
     const observer = new IntersectionObserver(

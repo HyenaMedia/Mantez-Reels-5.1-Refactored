@@ -1,38 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
 import DOMPurify from 'dompurify';
 import { Plus, Minus } from 'lucide-react';
-import { useToast } from '../hooks/use-toast';
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
+import useApiData from '../hooks/useApiData';
 
 const FAQ = () => {
-  const [faqs, setFaqs] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [openIndex, setOpenIndex] = useState(null);
   const sectionRef = useRef(null);
-  const { toast } = useToast();
+
+  const { data: faqs, loading } = useApiData('/api/content/faqs', {
+    initialData: [],
+    transform: (resp) => resp.faqs || [],
+  });
 
   useEffect(() => {
-    const controller = new AbortController();
-    const fetchFaqs = async () => {
-      try {
-        const response = await axios.get(`${BACKEND_URL}/api/content/faqs`, { signal: controller.signal });
-        if (response.data.faqs) {
-          setFaqs(response.data.faqs);
-        }
-      } catch (error) {
-        if (error.name === 'AbortError' || error.code === 'ERR_CANCELED') return;
-        console.error('Failed to fetch FAQs:', error);
-        toast({ title: 'Failed to load FAQs', variant: 'destructive' });
-        setFaqs([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchFaqs();
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -48,10 +28,7 @@ const FAQ = () => {
       observer.observe(sectionRef.current);
     }
 
-    return () => {
-      controller.abort();
-      observer.disconnect();
-    };
+    return () => observer.disconnect();
   }, []);
 
   const toggleFaq = (index) => {

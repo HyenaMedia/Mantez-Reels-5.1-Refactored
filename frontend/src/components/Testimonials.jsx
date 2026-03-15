@@ -1,35 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
 import DOMPurify from 'dompurify';
 import { ChevronLeft, ChevronRight, Quote } from 'lucide-react';
 import { Button } from './ui/button';
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
+import useApiData from '../hooks/useApiData';
 
 const Testimonials = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [testimonials, setTestimonials] = useState([]);
-  const [, setLoading] = useState(true);
   const sectionRef = useRef(null);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    const fetchTestimonials = async () => {
-      try {
-        const response = await axios.get(`${BACKEND_URL}/api/content/testimonials`, { signal: controller.signal });
-        if (response.data.testimonials) {
-          setTestimonials(response.data.testimonials);
-        }
-      } catch (error) {
-        if (error.name === 'AbortError' || error.code === 'ERR_CANCELED') return;
-        console.error('Failed to fetch testimonials:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTestimonials();
-    return () => controller.abort();
-  }, []);
+  const { data: testimonials } = useApiData('/api/content/testimonials', {
+    initialData: [],
+    transform: (resp) => resp.testimonials || [],
+  });
 
   useEffect(() => {
     const observer = new IntersectionObserver(

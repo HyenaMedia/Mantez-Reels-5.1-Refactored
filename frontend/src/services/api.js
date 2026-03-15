@@ -11,9 +11,15 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const runtime = getRuntimeUrl();
   if (runtime) {
-    // Override baseURL if it matches the build-time env var
     if (config.baseURL === process.env.REACT_APP_BACKEND_URL) {
       config.baseURL = runtime;
+    }
+  }
+  // Auto-attach auth token when present (skips if header already set)
+  if (!config.headers.Authorization) {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
   }
   return config;

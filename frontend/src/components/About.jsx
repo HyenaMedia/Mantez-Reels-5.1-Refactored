@@ -1,53 +1,38 @@
 import React, { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
 import DOMPurify from 'dompurify';
+import useApiData from '../hooks/useApiData';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
+const defaultContent = {
+  title: 'About Me',
+  description:
+    "I'm a passionate videographer and photographer dedicated to capturing life's most beautiful moments.",
+  imageUrl: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=600&q=50&auto=format&fit=crop&fm=webp',
+};
 
 const About = () => {
   const sectionRef = useRef(null);
   const imageRef = useRef(null);
-  const [content, setContent] = useState({
-    title: 'About Me',
-    description:
-      "I'm a passionate videographer and photographer dedicated to capturing life's most beautiful moments.",
-    imageUrl: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=600&q=50&auto=format&fit=crop&fm=webp',
-  });
-  const [, setLoading] = useState(true);
   const [scrollY, setScrollY] = useState(0);
+
+  const { data: content } = useApiData('/api/content/about', {
+    initialData: defaultContent,
+    transform: (resp) => {
+      if (!resp.content) return defaultContent;
+      const data = resp.content;
+      return {
+        title: data.title || defaultContent.title,
+        description: Array.isArray(data.description)
+          ? data.description.join('\n\n')
+          : data.description,
+        imageUrl: data.image_url || defaultContent.imageUrl,
+      };
+    },
+  });
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    const fetchContent = async () => {
-      try {
-        const response = await axios.get(`${BACKEND_URL}/api/content/about`, { signal: controller.signal });
-        if (response.data.content) {
-          const data = response.data.content;
-          setContent({
-            title: data.title || 'About Me',
-            description: Array.isArray(data.description)
-              ? data.description.join('\n\n')
-              : data.description,
-            imageUrl:
-              data.image_url ||
-              'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=600&q=50&auto=format&fit=crop&fm=webp',
-          });
-        }
-      } catch (error) {
-        if (error.name === 'AbortError' || error.code === 'ERR_CANCELED') return;
-        console.error('Failed to fetch about content:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchContent();
-    return () => controller.abort();
   }, []);
 
   useEffect(() => {

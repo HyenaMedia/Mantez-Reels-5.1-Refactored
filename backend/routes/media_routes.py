@@ -4,7 +4,6 @@ import shutil
 import sys
 import tempfile
 import uuid
-from datetime import datetime, timezone
 from pathlib import Path
 
 import aiofiles
@@ -16,6 +15,8 @@ from auth import require_auth
 from file_scanner import get_scanner_status, scan_uploaded_file
 from media_optimizer import MediaOptimizer
 from services.storage_service import StorageService
+from utils.constants import utcnow
+from utils.decorators import handle_exceptions
 
 logger = logging.getLogger(__name__)
 
@@ -250,7 +251,7 @@ async def upload_image(file: UploadFile = File(...), storage_target: str = None,
             "local_sizes": local_sizes,
             "r2_sizes": r2_sizes,
             "storage_type": storage_type,
-            "uploaded_at": datetime.now(timezone.utc),
+            "uploaded_at": utcnow(),
             "scanned": True,
             "scan_result": "clean",
             "used_in": [],
@@ -349,7 +350,7 @@ async def upload_video(file: UploadFile = File(...), storage_target: str = None,
             "r2_url": r2_url,
             "storage_type": storage_type,
             "size": size,
-            "uploaded_at": datetime.now(timezone.utc),
+            "uploaded_at": utcnow(),
             "scanned": True,
             "scan_result": "clean",
             "used_in": [],
@@ -374,22 +375,19 @@ async def upload_video(file: UploadFile = File(...), storage_target: str = None,
 
 
 @router.get("/list")
+@handle_exceptions("list media")
 async def list_media(type: str = None, limit: int = 50, current_user: dict = Depends(require_auth)):
     """List all uploaded media files."""
-    try:
-        limit = min(max(1, limit), 200)  # Cap between 1 and 200
-        query = {}
-        if type:
-            query["type"] = type
-        media_list = await db.media.find(query).sort("uploaded_at", -1).limit(limit).to_list(limit)
-        return {
-            "success": True,
-            "count": len(media_list),
-            "media": [_transform_media_item(item) for item in media_list],
-        }
-    except Exception as e:
-        logger.error(f"Failed to list media: {e}")
-        raise HTTPException(status_code=500, detail="Failed to list media")
+    limit = min(max(1, limit), 200)  # Cap between 1 and 200
+    query = {}
+    if type:
+        query["type"] = type
+    media_list = await db.media.find(query).sort("uploaded_at", -1).limit(limit).to_list(limit)
+    return {
+        "success": True,
+        "count": len(media_list),
+        "media": [_transform_media_item(item) for item in media_list],
+    }
 
 
 class StorageMigrateRequest(BaseModel):
@@ -534,51 +532,45 @@ async def migrate_storage(
 
 
 @router.delete("/{file_id}")
+@handle_exceptions("delete media")
 async def delete_media(file_id: str, current_user: dict = Depends(require_auth)):
     """Delete a media file from all storage locations."""
-    try:
-        media = await db.media.find_one({"file_id": file_id})
-        if not media:
-            raise HTTPException(status_code=404, detail="Media not found")
+    media = await db.media.find_one({"file_id": file_id})
+    if not media:
+        raise HTTPException(status_code=404, detail="Media not found")
 
-        storage_type = media.get("storage_type", "local")
+    storage_type = media.get("storage_type", "local")
 
-        if media["type"] == "image":
-            # Delete local files
-            if storage_type in ("local", "both"):
-                sizes = media.get("local_sizes") or media.get("sizes", {})
-                for size_data in sizes.values():
-                    for fmt in ("webp", "jpeg"):
-                        url = size_data.get(fmt, "")
-                        if url and not url.startswith("http"):
-                            local_path = MEDIA_DIR / _local_filename_from_url(url)
-                            if local_path.exists():
-                                local_path.unlink()
-            # Delete R2 files
-            if storage_type in ("r2", "both"):
-                r2_storage, _ = await _get_r2_service()
-                if r2_storage:
-                    r2_sizes = media.get("r2_sizes") or (media.get("sizes", {}) if storage_type == "r2" else {})
-                    await _delete_r2_sizes(r2_storage, r2_sizes)
-        else:
-            # Video
-            if storage_type in ("local", "both"):
-                local_url = media.get("local_url", media.get("url", ""))
-                if local_url and not local_url.startswith("http"):
-                    local_path = MEDIA_DIR / _local_filename_from_url(local_url)
-                    if local_path.exists():
-                        local_path.unlink()
-            if storage_type in ("r2", "both"):
-                r2_storage, _ = await _get_r2_service()
-                r2_url = media.get("r2_url", "")
-                if r2_storage and r2_url:
-                    await r2_storage.delete_from_r2(_r2_key_from_url(r2_url))
+    if media["type"] == "image":
+        # Delete local files
+        if storage_type in ("local", "both"):
+            sizes = media.get("local_sizes") or media.get("sizes", {})
+            for size_data in sizes.values():
+                for fmt in ("webp", "jpeg"):
+                    url = size_data.get(fmt, "")
+                    if url and not url.startswith("http"):
+                        local_path = MEDIA_DIR / _local_filename_from_url(url)
+                        if local_path.exists():
+                            local_path.unlink()
+        # Delete R2 files
+        if storage_type in ("r2", "both"):
+            r2_storage, _ = await _get_r2_service()
+            if r2_storage:
+                r2_sizes = media.get("r2_sizes") or (media.get("sizes", {}) if storage_type == "r2" else {})
+                await _delete_r2_sizes(r2_storage, r2_sizes)
+    else:
+        # Video
+        if storage_type in ("local", "both"):
+            local_url = media.get("local_url", media.get("url", ""))
+            if local_url and not local_url.startswith("http"):
+                local_path = MEDIA_DIR / _local_filename_from_url(local_url)
+                if local_path.exists():
+                    local_path.unlink()
+        if storage_type in ("r2", "both"):
+            r2_storage, _ = await _get_r2_service()
+            r2_url = media.get("r2_url", "")
+            if r2_storage and r2_url:
+                await r2_storage.delete_from_r2(_r2_key_from_url(r2_url))
 
-        await db.media.delete_one({"file_id": file_id})
-        return {"success": True, "message": "Media deleted successfully"}
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Media delete failed: {e}")
-        raise HTTPException(status_code=500, detail="Delete failed")
+    await db.media.delete_one({"file_id": file_id})
+    return {"success": True, "message": "Media deleted successfully"}

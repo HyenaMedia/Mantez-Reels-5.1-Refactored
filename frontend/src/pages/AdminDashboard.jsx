@@ -1,24 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { AlertTriangle, Lock } from 'lucide-react';
 import { AdminThemeProvider } from '../contexts/AdminThemeContext';
 import { Button } from '../components/ui/button';
+import SectionErrorBoundary from '../components/SectionErrorBoundary';
 import Sidebar from '../components/admin/Sidebar';
 import TopBar from '../components/admin/TopBar';
 import DashboardOverview from '../components/admin/DashboardOverview';
-import PortfolioEditor from '../components/admin/PortfolioEditor';
-import PortfolioGrid from '../components/admin/PortfolioGrid';
-import MediaLibrary from '../components/admin/MediaLibrary';
-import UserManager from '../components/admin/UserManager';
-import SecurityManager from '../components/admin/SecurityManager';
-import ContentEditor from '../components/admin/ContentEditor';
-import Settings from '../components/admin/Settings';
-import AnalyticsDashboard from '../components/admin/AnalyticsDashboard';
-import IntegrationsManager from '../components/admin/IntegrationsManager';
-import ActivityLogViewer from '../components/admin/ActivityLogViewer';
-import MessagesManager from '../components/admin/MessagesManager';
 import ChangePasswordModal from '../components/admin/ChangePasswordModal';
 import axios from 'axios';
 import { useToast } from '../hooks/use-toast';
+
+// Lazy-load heavy admin sub-views (only loaded when their tab is active)
+const PortfolioEditor = lazy(() => import('../components/admin/PortfolioEditor'));
+const PortfolioGrid = lazy(() => import('../components/admin/PortfolioGrid'));
+const MediaLibrary = lazy(() => import('../components/admin/MediaLibrary'));
+const UserManager = lazy(() => import('../components/admin/UserManager'));
+const SecurityManager = lazy(() => import('../components/admin/SecurityManager'));
+const ContentEditor = lazy(() => import('../components/admin/ContentEditor'));
+const Settings = lazy(() => import('../components/admin/Settings'));
+const AnalyticsDashboard = lazy(() => import('../components/admin/AnalyticsDashboard'));
+const IntegrationsManager = lazy(() => import('../components/admin/IntegrationsManager'));
+const ActivityLogViewer = lazy(() => import('../components/admin/ActivityLogViewer'));
+const MessagesManager = lazy(() => import('../components/admin/MessagesManager'));
+
+const AdminFallback = () => (
+  <div className="flex items-center justify-center h-64">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400" />
+  </div>
+);
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
 const API = `${BACKEND_URL}/api`;
@@ -129,32 +138,36 @@ const AdminDashboard = () => {
               </div>
             )}
 
-            {activeTab === 'dashboard' && <DashboardOverview />}
-            {activeTab === 'content' && <ContentEditor />}
-            {activeTab === 'portfolio' && (
-              showEditor ? (
-                <PortfolioEditor
-                  item={editingItem}
-                  onSave={() => { setShowEditor(false); setEditingItem(null); loadPortfolio(); }}
-                  onCancel={() => { setShowEditor(false); setEditingItem(null); }}
-                />
-              ) : (
-                <PortfolioGrid
-                  items={portfolioItems}
-                  loading={false}
-                  onEdit={(item) => { setEditingItem(item); setShowEditor(true); }}
-                  onRefresh={loadPortfolio}
-                />
-              )
-            )}
-            {activeTab === 'media' && <MediaLibrary />}
-            {activeTab === 'messages' && <MessagesManager />}
-            {activeTab === 'analytics' && <AnalyticsDashboard />}
-            {activeTab === 'users' && <UserManager />}
-            {activeTab === 'security' && <SecurityManager />}
-            {activeTab === 'integrations' && <IntegrationsManager />}
-            {activeTab === 'activity' && <ActivityLogViewer />}
-            {activeTab === 'settings' && <Settings />}
+            <SectionErrorBoundary name="Admin Panel">
+              <Suspense fallback={<AdminFallback />}>
+                {activeTab === 'dashboard' && <DashboardOverview />}
+                {activeTab === 'content' && <ContentEditor />}
+                {activeTab === 'portfolio' && (
+                  showEditor ? (
+                    <PortfolioEditor
+                      item={editingItem}
+                      onSave={() => { setShowEditor(false); setEditingItem(null); loadPortfolio(); }}
+                      onCancel={() => { setShowEditor(false); setEditingItem(null); }}
+                    />
+                  ) : (
+                    <PortfolioGrid
+                      items={portfolioItems}
+                      loading={false}
+                      onEdit={(item) => { setEditingItem(item); setShowEditor(true); }}
+                      onRefresh={loadPortfolio}
+                    />
+                  )
+                )}
+                {activeTab === 'media' && <MediaLibrary />}
+                {activeTab === 'messages' && <MessagesManager />}
+                {activeTab === 'analytics' && <AnalyticsDashboard />}
+                {activeTab === 'users' && <UserManager />}
+                {activeTab === 'security' && <SecurityManager />}
+                {activeTab === 'integrations' && <IntegrationsManager />}
+                {activeTab === 'activity' && <ActivityLogViewer />}
+                {activeTab === 'settings' && <Settings />}
+              </Suspense>
+            </SectionErrorBoundary>
           </div>
         </div>
 

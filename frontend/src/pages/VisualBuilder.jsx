@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } from 'react';
 import { ArrowLeft, Monitor, Tablet, Smartphone, Save, RotateCcw, Keyboard, Undo2, Redo2, Search, Maximize2, Minimize2, X as XIcon, FileText, Download } from 'lucide-react';
+import SectionErrorBoundary from '../components/SectionErrorBoundary';
 
 // Extracted constants to avoid re-creating on every render
 const DEVICE_PRESETS = [
@@ -767,7 +768,9 @@ const VisualBuilderContent = () => {
 
         {/* Center: Canvas */}
         <main className="flex-1 overflow-auto">
-          <DroppableCanvas device={device} />
+          <SectionErrorBoundary name="Canvas">
+            <DroppableCanvas device={device} />
+          </SectionErrorBoundary>
         </main>
 
         {/* Right: Inspector / Layers */}
@@ -816,6 +819,7 @@ const VisualBuilderContent = () => {
             )}
           </div>
           <div className="flex-1 overflow-y-auto">
+            <SectionErrorBoundary name="Panel">
             <div key={rightPanel} className="h-full panel-slide-in">
               {rightPanel === 'inspector' && !isInspectorFloating && (
                 <Inspector
@@ -848,6 +852,7 @@ const VisualBuilderContent = () => {
               {rightPanel === 'history' && <VersionHistory pageId={pageState?.page?.meta?.id || 'home'} />}
               {rightPanel === 'ai' && <AIDesignAssistant />}
             </div>
+            </SectionErrorBoundary>
           </div>
         </aside>
       </div>

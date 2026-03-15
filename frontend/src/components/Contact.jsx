@@ -18,10 +18,8 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { useToast } from '../hooks/use-toast';
-import axios from 'axios';
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
-const API = `${BACKEND_URL}/api`;
+import api from '../services/api';
+import useApiData from '../hooks/useApiData';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -31,13 +29,19 @@ const Contact = () => {
     message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [contactInfo, setContactInfo] = useState(null);
-  const [settings, setSettings] = useState(null);
   const sectionRef = useRef(null);
   const { toast } = useToast();
 
+  const { data: contactInfo } = useApiData('/api/content/contact-info', {
+    initialData: null,
+    transform: (resp) => (resp.success ? resp.content : null),
+  });
+
+  const { data: settings } = useApiData('/api/settings/', {
+    initialData: null,
+  });
+
   useEffect(() => {
-    const controller = new AbortController();
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -53,36 +57,7 @@ const Contact = () => {
       observer.observe(sectionRef.current);
     }
 
-    // Load contact info and settings
-    const loadContactInfo = async () => {
-      try {
-        const response = await axios.get(`${API}/content/contact-info`, { signal: controller.signal });
-        if (response.data.success) {
-          setContactInfo(response.data.content);
-        }
-      } catch (error) {
-        if (error.name === 'AbortError' || error.code === 'ERR_CANCELED') return;
-        console.error('Failed to load contact info:', error);
-      }
-    };
-
-    const loadSettings = async () => {
-      try {
-        const response = await axios.get(`${API}/settings/`, { signal: controller.signal });
-        setSettings(response.data);
-      } catch (error) {
-        if (error.name === 'AbortError' || error.code === 'ERR_CANCELED') return;
-        console.error('Failed to load settings:', error);
-      }
-    };
-
-    loadContactInfo();
-    loadSettings();
-
-    return () => {
-      controller.abort();
-      observer.disconnect();
-    };
+    return () => observer.disconnect();
   }, []);
 
   const getSocialIcon = (platform) => {
@@ -175,7 +150,7 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post(`${API}/contact/submit`, formData);
+      const response = await api.post('/api/contact/submit', formData);
 
       if (response.data.success) {
         toast({

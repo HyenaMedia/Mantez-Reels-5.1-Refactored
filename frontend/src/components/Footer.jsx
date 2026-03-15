@@ -1,35 +1,18 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
+import React from 'react';
 import DOMPurify from 'dompurify';
 import { useSettings } from '../contexts/SettingsContext';
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
-const API = `${BACKEND_URL}/api`;
+import useApiData from '../hooks/useApiData';
 
 const Footer = () => {
-  const [footerContent, setFooterContent] = useState(null);
   const { settings } = useSettings();
 
   const logoUrl = settings?.site?.logoUrl || '';
   const siteName = settings?.site?.siteName || 'Mantez Reels';
 
-  const loadContent = useCallback(async (signal) => {
-    try {
-      const footerRes = await axios.get(`${API}/content/footer`, { signal });
-      if (footerRes.data.success) {
-        setFooterContent(footerRes.data.content);
-      }
-    } catch (_error) {
-      if (_error.name === 'AbortError' || _error.code === 'ERR_CANCELED') return;
-      console.error('Failed to load footer content:', _error);
-    }
-  }, []);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    loadContent(controller.signal);
-    return () => controller.abort();
-  }, [loadContent]);
+  const { data: footerContent } = useApiData('/api/content/footer', {
+    initialData: null,
+    transform: (resp) => (resp.success ? resp.content : null),
+  });
 
   return (
     <footer className="bg-black border-t border-gray-800 py-12 px-6 lg:px-8">

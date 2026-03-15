@@ -1,12 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useRef } from 'react';
 import DOMPurify from 'dompurify';
 import { Calendar, ArrowRight } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { useToast } from '../hooks/use-toast';
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
+import useApiData from '../hooks/useApiData';
 
 const BlogCard = ({ post, index }) => {
   const cardRef = useRef(null);
@@ -88,29 +85,11 @@ const BlogCard = ({ post, index }) => {
 
 const Blog = () => {
   const titleRef = useRef(null);
-  const [blogPosts, setBlogPosts] = useState([]);
-  const [, setLoading] = useState(true);
-  const { toast } = useToast();
 
-  useEffect(() => {
-    const controller = new AbortController();
-    const fetchBlogPosts = async () => {
-      try {
-        const response = await axios.get(`${BACKEND_URL}/api/content/blog`, { signal: controller.signal });
-        if (response.data.posts) {
-          setBlogPosts(response.data.posts);
-        }
-      } catch (error) {
-        if (error.name === 'AbortError' || error.code === 'ERR_CANCELED') return;
-        console.error('Failed to fetch blog posts:', error);
-        toast({ title: 'Failed to load blog posts', variant: 'destructive' });
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchBlogPosts();
-    return () => controller.abort();
-  }, []);
+  const { data: blogPosts } = useApiData('/api/content/blog', {
+    initialData: [],
+    transform: (resp) => resp.posts || [],
+  });
 
   useEffect(() => {
     const observer = new IntersectionObserver(
