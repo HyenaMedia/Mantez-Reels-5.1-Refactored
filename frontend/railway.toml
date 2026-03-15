@@ -1,11 +1,13 @@
 # Railway Configuration for Mantez Reels Frontend (React + Node)
-# Uses Railpack (auto-detects Node.js + yarn from package.json)
+# Forces Railpack builder (skips Dockerfile which uses nginx on port 80).
+# Railpack auto-detects Node.js + yarn from package.json.
 #
 # NOTE: react-snap pre-rendering is skipped on Railway (postbuild uses || echo).
 # The SPA works perfectly without it — pre-rendering is an SEO bonus only.
 # For full pre-rendering, deploy using the Dockerfile instead.
 
 [build]
+builder = "RAILPACK"
 buildCommand = "yarn install && yarn build"
 
 [deploy]
