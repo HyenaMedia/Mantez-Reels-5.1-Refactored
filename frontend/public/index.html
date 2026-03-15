@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#000000" />
+        
+        <!-- Favicons -->
+        <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+        <link rel="icon" type="image/svg+xml" href="%PUBLIC_URL%/favicon.svg" />
+        <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="%PUBLIC_URL%/favicon-16x16.png" />
+        <link rel="apple-touch-icon" sizes="192x192" href="%PUBLIC_URL%/logo192.png" />
+        
+        <!-- SEO Meta Tags -->
+        <meta name="description" content="Mantez Reels - Professional videographer and photographer creating cinematic visuals and complete creative direction. Based in Greece, working worldwide." />
+        <meta name="keywords" content="videographer, photographer, videography, photography, cinematic videos, wedding videographer, commercial videos, Greece videographer, creative direction" />
+        <meta name="author" content="Mantez Reels" />
+        
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://mantezreels.com/" />
+        <meta property="og:title" content="Mantez Reels | Professional Videographer & Photographer" />
+        <meta property="og:description" content="Bringing ideas to life through cinematic visuals and complete creative direction. Based in Greece, working worldwide." />
+        <meta property="og:image" content="%PUBLIC_URL%/og-image.png" />
+        
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content="https://mantezreels.com/" />
+        <meta name="twitter:title" content="Mantez Reels | Professional Videographer & Photographer" />
+        <meta name="twitter:description" content="Bringing ideas to life through cinematic visuals and complete creative direction. Based in Greece, working worldwide." />
+        <meta name="twitter:image" content="%PUBLIC_URL%/og-image.png" />
+        
+        <!-- Performance: Preconnect to external domains -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        
+        <!-- DNS Prefetch for faster lookups -->
+        <!-- DNS prefetch for lazy-loaded image sources -->
+        <link rel="dns-prefetch" href="https://images.unsplash.com">
+        
+        <!-- Resource Hints for Performance -->
+        <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+        <noscript>
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+        </noscript>
+        
+        <!-- PWA Manifest -->
+        <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+        
+        <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+        <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+        <title>Mantez Reels | Professional Videographer & Photographer Portfolio</title>
+        <!-- <script src="https://assets.emergent.sh/scripts/emergent-main.js"></script> -->
+        <style>
+            /* NUCLEAR OPTION - Multiple layers of hiding */
+            #emergent-badge,
+            body > a[href*="emergent"],
+            body > a[id*="emergent"],
+            a[href*="app.emergent.sh"],
+            a[href*="emergent.sh"],
+            a[style*="position: fixed"][style*="bottom"],
+            a[style*="position:fixed"][style*="bottom"] {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+                position: absolute !important;
+                left: -99999px !important;
+                top: -99999px !important;
+                width: 0px !important;
+                height: 0px !important;
+                overflow: hidden !important;
+                z-index: -99999 !important;
+                clip: rect(0,0,0,0) !important;
+                clip-path: inset(100%) !important;
+            }
+            
+            /* Cover bottom-right corner with invisible div to block clicks */
+            body::after {
+                content: '';
+                position: fixed;
+                bottom: 0;
+                right: 0;
+                width: 200px;
+                height: 100px;
+                background: transparent;
+                z-index: 99999;
+                pointer-events: auto;
+            }
+
+            /* ── App Loading Shell ────────────────────────────────────────
+               Shown instantly while the JS bundle loads.
+               For pre-rendered routes this is invisible (0ms) — the
+               server already sends the full page HTML.
+               For SPA routes (admin/login) it shows briefly until React
+               mounts and replaces #root content.
+               
+               Uses CSS :has() selector to auto-hide when #root has content.
+               Falls back to React's useEffect for older browsers.
+            ─────────────────────────────────────────────────────────────── */
+            body { margin: 0; background: #080808; }
+
+            #app-shell {
+                position: fixed;
+                inset: 0;
+                background: #080808;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+                font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            }
+            
+            /* Hide shell when #root has pre-rendered content (prevents hydration mismatch) */
+            body:has(#root > *) #app-shell {
+                display: none;
+            }
+            .shell-inner { text-align: center; }
+            .shell-ring {
+                width: 64px;
+                height: 64px;
+                border: 1px solid rgba(255,255,255,0.1);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 22px;
+                animation: shellPulse 2.4s ease-in-out infinite;
+            }
+            .shell-letter {
+                color: #fff;
+                font-size: 24px;
+                font-weight: 700;
+                letter-spacing: -1px;
+                line-height: 1;
+            }
+            .shell-name {
+                color: rgba(255,255,255,0.25);
+                font-size: 10px;
+                letter-spacing: 6px;
+                text-transform: uppercase;
+                margin: 0;
+            }
+            .shell-track {
+                width: 80px;
+                height: 1px;
+                background: rgba(255,255,255,0.06);
+                border-radius: 1px;
+                margin: 18px auto 0;
+                overflow: hidden;
+            }
+            .shell-bar {
+                height: 100%;
+                width: 40%;
+                background: linear-gradient(90deg, transparent, #9333ea, transparent);
+                animation: shellSweep 1.8s ease-in-out infinite;
+            }
+            @keyframes shellPulse {
+                0%, 100% { border-color: rgba(255,255,255,0.08); }
+                50%       { border-color: rgba(147,51,234,0.55); }
+            }
+            @keyframes shellSweep {
+                0%   { transform: translateX(-100%); }
+                100% { transform: translateX(300%); }
+            }
+        </style>
+        <!-- EMERGENT_DEV_ONLY_START -->
+        <script>
+            // Remove Emergent badge on load
+            window.addEventListener('DOMContentLoaded', function() {
+                function removeBadge() {
+                    const badge = document.getElementById('emergent-badge');
+                    if (badge) {
+                        badge.remove();
+                    }
+                    // Also try to find by href
+                    const emergentLinks = document.querySelectorAll('a[href*="emergent.sh"]');
+                    emergentLinks.forEach(link => link.remove());
+                }
+                
+                // Run immediately
+                removeBadge();
+                
+                // Run again after delays (in case it loads async)
+                setTimeout(removeBadge, 500);
+                setTimeout(removeBadge, 1000);
+                setTimeout(removeBadge, 2000);
+                
+                // Watch for DOM changes
+                const observer = new MutationObserver(removeBadge);
+                observer.observe(document.body, { childList: true, subtree: true });
+            });
+        </script>
+        <!-- EMERGENT_DEV_ONLY_END -->
+        <!--
+        These two scripts have been added for the testing, please do not edit or remove them
+        Deferred to not block initial page render
+        -->
+        <script defer src="https://unpkg.com/rrweb@latest/dist/rrweb.min.js"></script>
+        <script defer src="https://d2adkz2s9zrlge.cloudfront.net/rrweb-recorder-20250919-1.js"></script>
+        <!--
+        These two scripts have been added for the Visual Edits, please do not edit or remove them
+        -->
+        <script>
+            // Only load visual edit scripts when inside an iframe and visual edits are enabled
+            if (window.self !== window.top && '%REACT_APP_ENABLE_VISUAL_EDITS%' === 'true') {
+                // Load debug monitor script
+                var debugScript = document.createElement('script');
+                debugScript.src = 'https://assets.emergent.sh/scripts/debug-monitor.js';
+                document.head.appendChild(debugScript);
+
+                // Configure Tailwind
+                window.tailwind = window.tailwind || {};
+                tailwind.config = {
+                    corePlugins: { preflight: false },
+                };
+
+                // Load Tailwind CDN
+                var tailwindScript = document.createElement('script');
+                tailwindScript.src = 'https://cdn.tailwindcss.com';
+                document.head.appendChild(tailwindScript);
+            }
+        </script>
+    </head>
+    <body>
+        <noscript>You need to enable JavaScript to run this app.</noscript>
+        <div id="root"></div>
+
+        <!--
+          Loading shell — sits OUTSIDE React's #root, positioned fixed to cover the screen.
+          • Pre-rendered routes: visible for ~50-200ms (network latency), then fades out
+            once React hydrates and the useEffect in App.js removes it.
+          • SPA routes (admin/login): visible until React mounts (~300-600ms), same fade.
+          Keeping it outside #root means React hydration never sees it.
+          
+          CRITICAL: No inline scripts manipulate this shell before React hydrates to avoid
+          hydration mismatches. React's useEffect handles removal after mount.
+        -->
+        <div id="app-shell">
+            <div class="shell-inner">
+                <div class="shell-ring">
+                    <span class="shell-letter">M</span>
+                </div>
+                <p class="shell-name">Mantez Reels</p>
+                <div class="shell-track">
+                    <div class="shell-bar"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ULTIMATE badge removal - runs before anything else -->
+        <script>
+            (function() {
+                'use strict';
+                
+                // Immediate removal function
+                function nukeAllBadges() {
+                    // Method 1: Remove by ID
+                    const byId = document.querySelector('#emergent-badge');
+                    if (byId) byId.parentNode.removeChild(byId);
+                    
+                    // Method 2: Remove all links to emergent
+                    document.querySelectorAll('a[href*="emergent.sh"]').forEach(el => {
+                        el.parentNode.removeChild(el);
+                    });
+                    
+                    // Method 3: Find all fixed position links at bottom-right
+                    document.querySelectorAll('a').forEach(el => {
+                        const style = window.getComputedStyle(el);
+                        const rect = el.getBoundingClientRect();
+                        // If fixed position and in bottom-right area
+                        if (style.position === 'fixed' && rect.bottom > window.innerHeight - 100 && rect.right > window.innerWidth - 200) {
+                            el.parentNode.removeChild(el);
+                        }
+                    });
+                    
+                    // Method 4: Remove by text content
+                    document.querySelectorAll('a').forEach(el => {
+                        if (el.textContent && (el.textContent.includes('Emergent') || el.textContent.includes('emergent'))) {
+                            const style = window.getComputedStyle(el);
+                            if (style.position === 'fixed') {
+                                el.parentNode.removeChild(el);
+                            }
+                        }
+                    });
+                }
+                
+                // Run immediately
+                nukeAllBadges();
+                
+                // Run on every possible event
+                document.addEventListener('DOMContentLoaded', nukeAllBadges);
+                window.addEventListener('load', nukeAllBadges);
+                
+                // Run every 50ms for 10 seconds
+                let counter = 0;
+                const interval = setInterval(() => {
+                    nukeAllBadges();
+                    counter++;
+                    if (counter > 200) clearInterval(interval); // Stop after 10 seconds
+                }, 50);
+                
+                // MutationObserver to catch new additions
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        mutation.addedNodes.forEach((node) => {
+                            if (node.nodeType === 1) { // Element node
+                                // Check if it's the badge or contains it
+                                if (node.id === 'emergent-badge' || 
+                                    (node.tagName === 'A' && node.href && node.href.includes('emergent.sh'))) {
+                                    node.parentNode.removeChild(node);
+                                }
+                                // Check child elements
+                                if (node.querySelector) {
+                                    const badges = node.querySelectorAll('#emergent-badge, a[href*="emergent.sh"]');
+                                    badges.forEach(badge => badge.parentNode.removeChild(badge));
+                                }
+                            }
+                        });
+                    });
+                });
+                
+                // Start observing
+                observer.observe(document.documentElement, {
+                    childList: true,
+                    subtree: true
+                });
+            })();
+        </script>
+        
+        <!-- Service Worker Registration -->
+        <script>
+            // TEMPORARILY DISABLED Service Worker for development
+            // Re-enable for production
+            if ('serviceWorker' in navigator) {
+                // Unregister all service workers
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for(let registration of registrations) {
+                        registration.unregister();
+                        console.log('[SW] Unregistered:', registration);
+                    }
+                });
+                
+                // Clear all caches
+                if ('caches' in window) {
+                    caches.keys().then(function(names) {
+                        for (let name of names) {
+                            caches.delete(name);
+                            console.log('[Cache] Deleted:', name);
+                        }
+                    });
+                }
+            }
+            
+            /* PRODUCTION: Uncomment this for production deployment
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker
+                        .register('/service-worker.js')
+                        .then((registration) => {
+                            console.log('[SW] Registered:', registration);
+                            
+                            // Check for updates every hour
+                            setInterval(() => {
+                                registration.update();
+                            }, 60 * 60 * 1000);
+                        })
+                        .catch((error) => {
+                            console.log('[SW] Registration failed:', error);
+                        });
+                });
+            }
+            */
+        </script>
+        
+        <!-- Scroll to Top Button - Pure JavaScript -->
+        <script>
+            (function() {
+                // Create button element
+                const button = document.createElement('button');
+                button.setAttribute('aria-label', 'Scroll to top');
+                button.id = 'scroll-to-top-btn';
+                button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>';
+                
+                // Style the button
+                button.style.cssText = `
+                    position: fixed !important;
+                    bottom: 32px !important;
+                    right: 32px !important;
+                    width: 56px !important;
+                    height: 56px !important;
+                    border-radius: 50% !important;
+                    background-color: #9333ea !important;
+                    color: white !important;
+                    border: none !important;
+                    cursor: pointer !important;
+                    display: none !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    box-shadow: 0 10px 40px rgba(147, 51, 234, 0.4) !important;
+                    transition: all 0.3s ease !important;
+                    z-index: 999999 !important;
+                    pointer-events: auto !important;
+                    opacity: 0 !important;
+                `;
+                
+                // Add to body
+                document.body.appendChild(button);
+                
+                // Show/hide based on scroll
+                let isVisible = false;
+                window.addEventListener('scroll', function() {
+                    const scrollPercentage = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100;
+                    
+                    if (scrollPercentage > 60 && !isVisible) {
+                        button.style.display = 'flex';
+                        setTimeout(() => {
+                            button.style.opacity = '1';
+                        }, 10);
+                        isVisible = true;
+                    } else if (scrollPercentage <= 60 && isVisible) {
+                        button.style.opacity = '0';
+                        setTimeout(() => {
+                            button.style.display = 'none';
+                        }, 300);
+                        isVisible = false;
+                    }
+                });
+                
+                // Hover effect
+                button.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.1)';
+                    this.style.backgroundColor = '#7e22ce';
+                });
+                
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                    this.style.backgroundColor = '#9333ea';
+                });
+                
+                // Click handler
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Scroll to top clicked!');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+                
+                console.log('Scroll to top button initialized');
+            })();
+        </script>
+        <!--
+      This HTML file is a template.
+      If you open it directly in the browser, you will see an empty page.
+
+      You can add webfonts, meta tags, or analytics to this file.
+      The build step will place the bundled scripts into the <body> tag.
+
+      To begin the development, run `npm start` or `yarn start`.
+      To create a production bundle, use `npm run build` or `yarn build`.
+    -->
+    </body>
+</html>

@@ -1,0 +1,32 @@
+# Railway Configuration for Mantez Reels Backend (FastAPI)
+# Docs: https://docs.railway.com/reference/config-as-code
+
+[build]
+builder = "NIXPACKS"
+
+[build.nixpacksPlan.phases.setup]
+nixPkgs = ["python312"]
+
+[build.nixpacksPlan.phases.install]
+cmds = ["pip install -r requirements.txt"]
+
+[deploy]
+startCommand = "uvicorn server:app --host 0.0.0.0 --port $PORT"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+# Environment variables — set these in the Railway dashboard:
+#
+# Required:
+#   MONGO_URL          = mongodb+srv://...  (from MongoDB Atlas)
+#   JWT_SECRET_KEY     = (auto-generate a strong secret)
+#   CORS_ORIGINS       = https://your-frontend.up.railway.app
+#   DB_NAME            = mantezreels
+#
+# Optional:
+#   MEDIA_DIR          = /tmp/backend/media
+#   TRUSTED_PROXY_COUNT = 1
+#   SENTRY_DSN         = (from sentry.io)
+#   R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME

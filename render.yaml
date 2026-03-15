@@ -1,0 +1,66 @@
+# Render Blueprint for Mantez Reels Portfolio
+# This file configures automatic deployment on Render.com
+
+services:
+  # Backend API Service (FastAPI)
+  - type: web
+    name: mantezreels-backend
+    runtime: python
+    plan: free  # Start free, upgrade to 'starter' ($7/month) when ready for production
+    region: frankfurt  # EU region - Change to: oregon, singapore, ohio if needed
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    # Persistent disk for media uploads (optional - only if using local storage)
+    # disk:
+    #   name: media-storage
+    #   mountPath: /var/data
+    #   sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: PORT
+        value: 8001
+      - key: DB_NAME
+        value: mantezreels
+      - key: JWT_SECRET_KEY
+        generateValue: true  # Render will auto-generate a secure secret
+      - key: MONGO_URL
+        sync: false  # You'll add this manually from MongoDB Atlas connection string
+      - key: CORS_ORIGINS
+        sync: false  # Set manually: your-frontend.onrender.com,yourdomain.com,http://localhost:3000
+      # - key: MEDIA_DIR  # Uncomment if using persistent disk
+      #   value: /var/data/media
+    autoDeploy: true  # Auto-deploy on git push
+    
+  # Frontend Static Site (React)
+  - type: web
+    name: mantezreels-frontend
+    runtime: node
+    plan: free  # Start free, upgrade to 'starter' ($7/month) when ready for production
+    region: frankfurt  # EU region - Same as backend for best performance
+    rootDir: frontend
+    buildCommand: yarn install && yarn build
+    startCommand: node server.js
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
+      - key: PORT
+        value: 3000
+      - key: REACT_APP_BACKEND_URL
+        sync: false  # Set manually: https://your-backend.onrender.com
+    autoDeploy: true
+
+# Database Configuration:
+# Render provides: PostgreSQL and Redis (managed)
+# For MongoDB: Use MongoDB Atlas (free M0 tier) - external service
+# 
+# Setup MongoDB Atlas:
+# 1. Go to https://mongodb.com/cloud/atlas
+# 2. Create free M0 cluster (512MB, sufficient for portfolios)
+# 3. Get connection string
+# 4. Add to MONGO_URL environment variable in backend service
+#
+# Full instructions in ARCHITECTURE.md (Deployment section)

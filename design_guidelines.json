@@ -1,0 +1,196 @@
+{
+  "identity": {
+    "name": "E1 Theme Builder",
+    "tone": "Premium, Tool-like, Creative, High-Contrast",
+    "principles": [
+      "Dark Mode First: Design for the 1% creative professional.",
+      "Density with Breathing Room: High information density but with generous padding inside containers.",
+      "Drill-Down Navigation: Never overwhelm. Show one context at a time.",
+      "Visual Feedback: Every hover, click, and change must be felt.",
+      "Direct Manipulation: What you see is what you edit."
+    ]
+  },
+  "layout": {
+    "structure": "Three-Pane Fixed Layout",
+    "areas": {
+      "left_sidebar": {
+        "width": "w-20",
+        "role": "Global Tools & Navigation",
+        "bg": "bg-gray-950",
+        "border": "border-r border-gray-900"
+      },
+      "center_canvas": {
+        "role": "Live Preview & Direct Manipulation",
+        "bg": "bg-gray-900",
+        "pattern": "Dot grid or subtle checkerboard for transparency awareness"
+      },
+      "right_sidebar": {
+        "width": "w-80 or w-96",
+        "role": "Contextual Inspector & Settings",
+        "bg": "bg-gray-950",
+        "border": "border-l border-gray-900",
+        "behavior": "Slide-over or Stacked Navigation"
+      }
+    }
+  },
+  "navigation_flow": {
+    "pattern": "Drill-Down with Back Navigation",
+    "states": [
+      {
+        "id": "global_view",
+        "description": "Default view showing Global Settings (Typography, Colors, etc.)",
+        "trigger": "Click 'Global Settings' in Toolbar or Deselect all components"
+      },
+      {
+        "id": "layers_view",
+        "description": "Tree view of all page components",
+        "trigger": "Click 'Layers' in Toolbar"
+      },
+      {
+        "id": "inspector_view",
+        "description": "Detailed properties for a single selected component",
+        "trigger": "Click component on Canvas OR Click item in Layers view",
+        "back_action": {
+          "label": "Determined by previous state (e.g., '← Back to Layers' or '← Global Settings')",
+          "behavior": "Returns to the previous sidebar state"
+        }
+      }
+    ]
+  },
+  "colors": {
+    "palette": {
+      "bg": {
+        "app": "#020617",
+        "panel": "#0f172a",
+        "surface": "#1e293b",
+        "input": "#0f172a"
+      },
+      "border": {
+        "subtle": "#1e293b",
+        "default": "#334155",
+        "active": "#475569"
+      },
+      "primary": {
+        "main": "#7c3aed",
+        "hover": "#6d28d9",
+        "text": "#ffffff"
+      },
+      "text": {
+        "heading": "#f8fafc",
+        "body": "#cbd5e1",
+        "muted": "#64748b"
+      }
+    }
+  },
+  "typography": {
+    "ui": {
+      "family": "Inter, system-ui, sans-serif",
+      "sizes": {
+        "label": "text-[11px] uppercase tracking-wider font-semibold",
+        "body": "text-sm",
+        "heading": "text-base font-semibold"
+      }
+    },
+    "preview": {
+      "note": "Dynamic based on user selection"
+    }
+  },
+  "components": {
+    "GlobalSettingsPanel": {
+      "path": "/app/frontend/src/components/themeBuilder/panels/GlobalSettingsPanel.jsx",
+      "description": "Consolidated settings from the old ThemeSettings page.",
+      "sections": [
+        {
+          "id": "typography",
+          "title": "Global Typography",
+          "content": ["H1-H6 Font Family/Size/Weight", "Body Font", "Link Styles"]
+        },
+        {
+          "id": "colors",
+          "title": "Color Palette",
+          "content": ["Primary", "Secondary", "Background", "Accent"]
+        },
+        {
+          "id": "animations",
+          "title": "Global Animations",
+          "content": ["Default Entry Animation", "Scroll Behavior"]
+        },
+        {
+          "id": "effects",
+          "title": "Visual Effects",
+          "content": ["Glassmorphism", "Shadows", "Border Radius"]
+        }
+      ]
+    },
+    "EnhancedInspector": {
+      "path": "/app/frontend/src/components/themeBuilder/Inspector.jsx",
+      "description": "Refactored inspector with tabs and improved UI.",
+      "tabs": [
+        {
+          "id": "content",
+          "icon": "Type",
+          "label": "Content",
+          "content": "Text fields, Image uploaders, Links"
+        },
+        {
+          "id": "style",
+          "icon": "Palette",
+          "label": "Style",
+          "content": "Spacing, Sizing, Colors (Local overrides)"
+        },
+        {
+          "id": "motion",
+          "icon": "Film",
+          "label": "Motion",
+          "content": "Animation presets, Duration, Delay (Overrides global)"
+        },
+        {
+          "id": "effects",
+          "icon": "Wand2",
+          "label": "Effects",
+          "content": "Borders, Shadows, Opacity, Filters"
+        }
+      ],
+      "header": {
+        "elements": ["Component Name", "Breadcrumbs (e.g. Hero > Container > Text)", "Close Button"]
+      }
+    },
+    "SidebarNavigation": {
+      "component": "BackButton",
+      "props": {
+        "label": "string",
+        "onClick": "function"
+      },
+      "style": "flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground mb-4 transition-colors"
+    }
+  },
+  "assets": {
+    "icons": {
+      "library": "lucide-react",
+      "mapping": {
+        "GlobalSettings": "Settings",
+        "Layers": "Layers",
+        "Components": "Box",
+        "Back": "ArrowLeft",
+        "Typography": "Type",
+        "Colors": "Palette",
+        "Motion": "Film",
+        "Effects": "Sparkles"
+      }
+    }
+  },
+  "implementation_steps": [
+    "1. Create `GlobalSettingsPanel.jsx` migrating logic from `ThemeSettings.jsx`.",
+    "2. Update `BuilderToolbar.jsx` to include a 'Global Settings' button.",
+    "3. Refactor `ThemeBuilder.jsx` to manage `rightPanelState` (stack: ['layers', 'inspector'] or ['global']).",
+    "4. Update `Inspector.jsx` to accept `onBack` prop and render the Back button if provided.",
+    "5. Integrate `AnimationsPanel` and `VisualEffectsPanel` into the new `GlobalSettingsPanel`.",
+    "6. Ensure all inputs in the new panels update the `ComponentRegistryContext` or `ThemeContext` live."
+  ],
+  "universal_guidelines": [
+    "Use `data-testid` for all interactive elements.",
+    "Avoid `transition: all`. Use specific transitions.",
+    "Ensure `z-index` layering is correct for panels over canvas.",
+    "Use Shadcn UI components but styled for the 'E1' dark theme (smaller, denser)."
+  ]
+}

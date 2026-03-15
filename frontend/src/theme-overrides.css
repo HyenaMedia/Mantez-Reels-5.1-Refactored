@@ -1,0 +1,187 @@
+/* Light Mode Overrides for Common Components */
+
+/* Admin Dashboard Light Mode */
+.light .glass,
+.light .bg-gray-900,
+.light .bg-gray-900\/50,
+.light .bg-gray-900\/90,
+.light [class*="bg-gray-9"] {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(226, 232, 240, 0.5) !important;
+}
+
+.light .bg-gray-800,
+.light .bg-gray-800\/30,
+.light .bg-gray-800\/50,
+.light [class*="bg-gray-8"] {
+  background-color: rgba(248, 250, 252, 0.95) !important;
+  border-color: rgba(203, 213, 225, 0.5) !important;
+}
+
+.light .bg-\[#12121a\],
+.light .bg-\[#0a0a0b\] {
+  background-color: #ffffff !important;
+}
+
+/* Text colors for light mode */
+.light .text-white {
+  color: #0f172a !important;
+}
+
+.light .text-gray-100,
+.light .text-gray-200,
+.light .text-gray-300 {
+  color: #334155 !important;
+}
+
+.light .text-gray-400 {
+  color: #64748b !important;
+}
+
+.light .text-gray-500,
+.light .text-gray-600 {
+  color: #64748b !important;
+}
+
+/* Borders */
+.light .border-white\/\[0.08\],
+.light .border-white\/\[0.06\],
+.light .border-gray-800,
+.light .border-gray-700,
+.light [class*="border-gray"] {
+  border-color: #e2e8f0 !important;
+}
+
+/* Navbar light mode */
+.light nav {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(12px);
+}
+
+.light nav.bg-black\/90 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Admin sidebar light mode */
+.light aside,
+.light .sidebar {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Cards and panels */
+.light .card,
+.light [class*="rounded-"] {
+  background-color: #ffffff;
+  border-color: #e2e8f0;
+}
+
+/* Buttons - keep primary purple but adapt others */
+.light button.bg-gray-700,
+.light button.bg-gray-800 {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.light button.bg-gray-700:hover,
+.light button.bg-gray-800:hover {
+  background-color: #e2e8f0 !important;
+}
+
+/* Inputs */
+.light input,
+.light textarea,
+.light select {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.light input::placeholder,
+.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+.light input:focus,
+.light textarea:focus,
+.light select:focus {
+  border-color: #8b5cf6 !important;
+  ring-color: rgba(139, 92, 246, 0.3) !important;
+}
+
+/* Dropdowns and popovers */
+.light .dropdown-menu,
+.light [role="menu"],
+.light [role="listbox"] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+.light .dropdown-item:hover,
+.light [role="menuitem"]:hover {
+  background-color: #f1f5f9 !important;
+}
+
+/* Shadows for light mode */
+.light .shadow-xl,
+.light .shadow-2xl {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Admin dashboard specific */
+.light .admin-container {
+  background-color: #f9fafb !important;
+}
+
+/* Hover states */
+.light .hover\:bg-white\/\[0.06\]:hover,
+.light .hover\:bg-gray-800:hover,
+.light .hover\:bg-gray-700:hover {
+  background-color: #f1f5f9 !important;
+}
+
+/* Keep purple/violet accents */
+.light .bg-purple-600,
+.light .bg-purple-700,
+.light .bg-violet-500,
+.light .text-purple-400,
+.light .text-violet-400,
+.light .text-indigo-400 {
+  /* Keep these as-is, they work in both modes */
+}
+
+/* Success, warning, error colors - keep as-is */
+.light .bg-green-500,
+.light .bg-red-500,
+.light .bg-yellow-500,
+.light .bg-blue-500 {
+  /* Keep semantic colors unchanged */
+}
+
+/* Admin dashboard main content area */
+.light .min-h-screen {
+  background-color: #f9fafb;
+}
+
+/* Fix for black backgrounds */
+.light [style*="background: #000"],
+.light [style*="background:#000"],
+.light [style*="background-color: #000"],
+.light [style*="background-color:#000"] {
+  background: #f9fafb !important;
+}
+
+/* Modal/Dialog light mode */
+.light .dialog,
+.light [role="dialog"] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Toasts/Notifications */
+.light .toast,
+.light [class*="toast-"] {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}

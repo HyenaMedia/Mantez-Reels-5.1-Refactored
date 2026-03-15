@@ -1,0 +1,96 @@
+/* Rich Text Editor Dark Theme Styles */
+.rich-text-editor .ql-snow {
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.375rem;
+}
+
+.rich-text-editor .ql-toolbar {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-top-left-radius: 0.375rem;
+  border-top-right-radius: 0.375rem;
+}
+
+.rich-text-editor .ql-container {
+  border: none;
+  font-family: inherit;
+  font-size: 0.875rem;
+  min-height: 120px;
+}
+
+.rich-text-editor .ql-editor {
+  color: white;
+  min-height: 120px;
+  padding: 12px 15px;
+}
+
+.rich-text-editor .ql-editor.ql-blank::before {
+  color: rgb(156, 163, 175);
+  font-style: italic;
+}
+
+/* Toolbar button styles */
+.rich-text-editor .ql-toolbar button,
+.rich-text-editor .ql-toolbar .ql-picker {
+  color: rgb(229, 231, 235);
+}
+
+.rich-text-editor .ql-toolbar button:hover,
+.rich-text-editor .ql-toolbar button.ql-active {
+  color: rgb(147, 51, 234);
+}
+
+.rich-text-editor .ql-toolbar .ql-stroke {
+  stroke: rgb(229, 231, 235);
+}
+
+.rich-text-editor .ql-toolbar button:hover .ql-stroke,
+.rich-text-editor .ql-toolbar button.ql-active .ql-stroke {
+  stroke: rgb(147, 51, 234);
+}
+
+.rich-text-editor .ql-toolbar .ql-fill {
+  fill: rgb(229, 231, 235);
+}
+
+.rich-text-editor .ql-toolbar button:hover .ql-fill,
+.rich-text-editor .ql-toolbar button.ql-active .ql-fill {
+  fill: rgb(147, 51, 234);
+}
+
+/* Picker (dropdowns) styles */
+.rich-text-editor .ql-toolbar .ql-picker-label {
+  color: rgb(229, 231, 235);
+}
+
+.rich-text-editor .ql-toolbar .ql-picker-label:hover {
+  color: rgb(147, 51, 234);
+}
+
+.rich-text-editor .ql-toolbar .ql-picker-options {
+  background-color: rgba(10, 10, 15, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rich-text-editor .ql-toolbar .ql-picker-item {
+  color: rgb(229, 231, 235);
+}
+
+.rich-text-editor .ql-toolbar .ql-picker-item:hover {
+  color: rgb(147, 51, 234);
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Remove default borders */
+.rich-text-editor .ql-snow.ql-toolbar button,
+.rich-text-editor .ql-snow .ql-toolbar button {
+  border: none;
+}
+
+.rich-text-editor .ql-snow.ql-toolbar button:hover,
+.rich-text-editor .ql-snow .ql-toolbar button:hover,
+.rich-text-editor .ql-snow.ql-toolbar button.ql-active,
+.rich-text-editor .ql-snow .ql-toolbar button.ql-active {
+  background-color: rgba(255, 255, 255, 0.08);
+}

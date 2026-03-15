@@ -1,0 +1,171 @@
+import React, { useState, useEffect } from 'react';
+import { AlertTriangle, Lock } from 'lucide-react';
+import { AdminThemeProvider } from '../contexts/AdminThemeContext';
+import { Button } from '../components/ui/button';
+import Sidebar from '../components/admin/Sidebar';
+import TopBar from '../components/admin/TopBar';
+import DashboardOverview from '../components/admin/DashboardOverview';
+import PortfolioEditor from '../components/admin/PortfolioEditor';
+import PortfolioGrid from '../components/admin/PortfolioGrid';
+import MediaLibrary from '../components/admin/MediaLibrary';
+import UserManager from '../components/admin/UserManager';
+import SecurityManager from '../components/admin/SecurityManager';
+import ContentEditor from '../components/admin/ContentEditor';
+import Settings from '../components/admin/Settings';
+import AnalyticsDashboard from '../components/admin/AnalyticsDashboard';
+import IntegrationsManager from '../components/admin/IntegrationsManager';
+import ActivityLogViewer from '../components/admin/ActivityLogViewer';
+import MessagesManager from '../components/admin/MessagesManager';
+import ChangePasswordModal from '../components/admin/ChangePasswordModal';
+import axios from 'axios';
+import { useToast } from '../hooks/use-toast';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
+const API = `${BACKEND_URL}/api`;
+
+const PAGE_INFO = {
+  dashboard: { title: 'Dashboard', subtitle: "Welcome back! Here's your overview" },
+  content: { title: 'Content Management', subtitle: 'Edit your website content' },
+  portfolio: { title: 'Portfolio', subtitle: 'Manage your work showcase' },
+  media: { title: 'Media Library', subtitle: 'Upload and manage media files' },
+  messages: { title: 'Messages', subtitle: 'View contact form submissions' },
+  analytics: { title: 'Analytics', subtitle: 'Track your site performance' },
+  users: { title: 'User Management', subtitle: 'Manage admin users' },
+  security: { title: 'Security Center', subtitle: 'Monitor site security' },
+  integrations: { title: 'Integrations', subtitle: 'Configure third-party services' },
+  activity: { title: 'Activity Log', subtitle: 'Audit trail of all actions' },
+  settings: { title: 'Settings', subtitle: 'Configure your website' },
+};
+
+const AdminDashboard = () => {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const { toast } = useToast();
+
+  // Portfolio editor state
+  const [portfolioItems, setPortfolioItems] = useState([]);
+  const [showEditor, setShowEditor] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+
+  // Password warning
+  const [isDefaultPassword, setIsDefaultPassword] = useState(false);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+
+  useEffect(() => {
+    const checkDefaultPassword = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        const res = await axios.get(`${API}/auth/security-check`, { headers: { Authorization: `Bearer ${token}` } });
+        setIsDefaultPassword(res.data.is_default_password === true);
+      } catch (error) { console.error('Failed to check default password status:', error); toast({ title: 'Failed to load dashboard data', variant: 'destructive' }); }
+    };
+    checkDefaultPassword();
+  }, []);
+
+  const loadPortfolio = async () => {
+    try {
+      const response = await axios.get(`${API}/portfolio/list?published_only=false`);
+      setPortfolioItems(response.data.items || []);
+    } catch (error) { console.error('Failed to load portfolio items:', error); toast({ title: 'Failed to load dashboard data', variant: 'destructive' }); }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'portfolio') loadPortfolio();
+  }, [activeTab]);
+
+  const handleNewAction = (action) => {
+    switch (action) {
+      case 'portfolio':
+        setActiveTab('portfolio');
+        setShowEditor(true);
+        setEditingItem(null);
+        break;
+      case 'media':
+        setActiveTab('media');
+        document.getElementById('media-upload-input')?.click();
+        break;
+      case 'user':
+        setActiveTab('users');
+        break;
+      case 'compose':
+        setActiveTab('messages');
+        break;
+      default:
+        break;
+    }
+  };
+
+  const pageInfo = PAGE_INFO[activeTab] || PAGE_INFO.dashboard;
+
+  return (
+    <AdminThemeProvider>
+      <div className="min-h-screen bg-black relative overflow-hidden transition-colors duration-300 pt-12">
+        {/* Background layers */}
+        <div className="fixed inset-0 bg-gradient-to-br from-purple-950/30 via-black to-pink-950/20 pointer-events-none" />
+        <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(120,0,255,0.1),transparent_50%)] pointer-events-none" />
+        <div className="fixed inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(255,0,128,0.1),transparent_50%)] pointer-events-none" />
+        <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] pointer-events-none" />
+
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+        <TopBar title={pageInfo.title} subtitle={pageInfo.subtitle} isCollapsed={isCollapsed} activeTab={activeTab} onNewAction={handleNewAction} />
+
+        <div className={`transition-all duration-300 pt-28 ${isCollapsed ? 'ml-20' : 'ml-64'} relative z-0`}>
+          <div className="p-6 lg:p-8">
+
+            {/* Default Password Warning */}
+            {isDefaultPassword && (
+              <div data-testid="default-password-banner" className="mb-6 flex items-center justify-between gap-4 p-4 rounded-xl border border-amber-500/40 bg-amber-500/10 backdrop-blur-sm">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-amber-500/20"><AlertTriangle className="w-5 h-5 text-amber-400" /></div>
+                  <div>
+                    <p className="text-amber-300 font-semibold text-sm">Security Alert: Default Password Active</p>
+                    <p className="text-amber-400/70 text-xs mt-0.5">You're using the default <code className="bg-black/30 px-1 rounded">admin123</code> password. Change it now before going live.</p>
+                  </div>
+                </div>
+                <Button onClick={() => setShowChangePasswordModal(true)} size="sm" data-testid="change-password-banner-btn" className="shrink-0 bg-amber-500 hover:bg-amber-400 text-black font-semibold">
+                  <Lock className="w-4 h-4 mr-2" />Change Password
+                </Button>
+              </div>
+            )}
+
+            {activeTab === 'dashboard' && <DashboardOverview />}
+            {activeTab === 'content' && <ContentEditor />}
+            {activeTab === 'portfolio' && (
+              showEditor ? (
+                <PortfolioEditor
+                  item={editingItem}
+                  onSave={() => { setShowEditor(false); setEditingItem(null); loadPortfolio(); }}
+                  onCancel={() => { setShowEditor(false); setEditingItem(null); }}
+                />
+              ) : (
+                <PortfolioGrid
+                  items={portfolioItems}
+                  loading={false}
+                  onEdit={(item) => { setEditingItem(item); setShowEditor(true); }}
+                  onRefresh={loadPortfolio}
+                />
+              )
+            )}
+            {activeTab === 'media' && <MediaLibrary />}
+            {activeTab === 'messages' && <MessagesManager />}
+            {activeTab === 'analytics' && <AnalyticsDashboard />}
+            {activeTab === 'users' && <UserManager />}
+            {activeTab === 'security' && <SecurityManager />}
+            {activeTab === 'integrations' && <IntegrationsManager />}
+            {activeTab === 'activity' && <ActivityLogViewer />}
+            {activeTab === 'settings' && <Settings />}
+          </div>
+        </div>
+
+        <ChangePasswordModal
+          open={showChangePasswordModal}
+          onClose={() => setShowChangePasswordModal(false)}
+          onPasswordChanged={() => setIsDefaultPassword(false)}
+        />
+      </div>
+    </AdminThemeProvider>
+  );
+};
+
+export default AdminDashboard;

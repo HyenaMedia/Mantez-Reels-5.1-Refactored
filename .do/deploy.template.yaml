@@ -1,0 +1,55 @@
+# DigitalOcean App Platform - Manual Deploy Template
+# Use this if you want to deploy via doctl CLI instead of GitHub integration
+#
+# Setup steps:
+# 1. Create a MongoDB cluster on DO Managed Databases (MongoDB 6)
+# 2. Generate a strong JWT secret: openssl rand -hex 32
+# 3. Replace YOUR_* placeholders below
+# 4. Deploy: doctl apps create --spec .do/deploy.template.yaml
+
+name: mantez-reels-portfolio
+region: nyc
+
+services:
+  - name: backend
+    source_dir: /backend
+    dockerfile_path: backend/Dockerfile
+    http_port: 8001
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    health_check:
+      http_path: /api/health
+      initial_delay_seconds: 30
+    envs:
+      - key: MONGO_URL
+        value: YOUR_MONGODB_CONNECTION_STRING
+        type: SECRET
+      - key: JWT_SECRET_KEY
+        value: YOUR_STRONG_JWT_SECRET_HERE
+        type: SECRET
+      - key: DB_NAME
+        value: portfolio_db
+      - key: CORS_ORIGINS
+        value: ${APP_URL}
+
+  - name: frontend
+    source_dir: /frontend
+    dockerfile_path: frontend/Dockerfile
+    http_port: 80
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    routes:
+      - path: /
+    build_args:
+      - key: BACKEND_HOST
+        value: backend
+    envs:
+      - key: REACT_APP_BACKEND_URL
+        value: ${backend.PUBLIC_URL}
+        scope: BUILD_TIME
+
+databases:
+  - name: mongodb
+    engine: MONGODB
+    version: "6"
+    production: true

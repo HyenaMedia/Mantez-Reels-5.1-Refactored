@@ -1,0 +1,93 @@
+# Files and directories to ignore during Render deployment
+# This speeds up builds and reduces deployment size
+
+# Documentation (not needed for runtime)
+*.md
+RENDER_*.md
+DEPLOYMENT*.md
+ADMIN_*.md
+API_*.md
+BUILDING_*.md
+COMPLETE_*.md
+COMPREHENSIVE_*.md
+CORNERSTONE_*.md
+DEVELOPER_*.md
+DOCKER_*.md
+ENHANCEMENTS_*.md
+FINAL_*.md
+I18N_*.md
+IMPLEMENTATION_*.md
+INCONSISTENCIES_*.md
+LOCAL_*.md
+MARKETING_*.md
+MEDIA_*.md
+OPTIMIZATION_*.md
+ORIGINAL_*.md
+PERFORMANCE_*.md
+PHASE_*.md
+PLAN_*.md
+PRODUCTION_*.md
+PROGRESS_*.md
+QUICK_*.md
+RAILWAY_*.md
+REFINEMENT_*.md
+REVISED_*.md
+SAAS_*.md
+SECURITY_*.md
+SPEED_*.md
+STATIC_*.md
+SYSTEM_*.md
+TESTING_*.md
+THEME_*.md
+UI_UX_*.md
+VIDEO_*.md
+VISUAL_*.md
+WEEKS_*.md
+
+# Test files
+test_*.py
+*_test.py
+tests/
+test_reports/
+pytest/
+backend_test.py
+performance_test_final.py
+rate_limit_test.py
+theme_builder_test.py
+
+# Development files
+.git/
+.gitignore
+.vscode/
+.idea/
+*.log
+*.pyc
+__pycache__/
+node_modules/
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Build artifacts (will be generated on Render)
+frontend/build/
+frontend/.cache/
+*.min.js.map
+*.min.css.map
+
+# Docker files (not needed on Render)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Memory and planning docs
+memory/
+
+# Backup files
+*.backup
+*.bak
+
+# Local environment
+.env.local
+.env.development
+.env.test
