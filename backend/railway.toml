@@ -1,11 +1,8 @@
 # Railway Configuration for Mantez Reels Backend (FastAPI)
-# Docs: https://docs.railway.com/reference/config-as-code
+# Uses Railpack (auto-detects Python + pip from requirements.txt + server.py)
 
 [build]
-builder = "NIXPACKS"
-
-[build.nixpacksPlan.phases.setup]
-nixPkgs = ["python312"]
+buildCommand = "pip install -r requirements.txt"
 
 [deploy]
 startCommand = "uvicorn server:app --host 0.0.0.0 --port ${PORT:-8001}"
@@ -21,9 +18,9 @@ restartPolicyMaxRetries = 5
 #   JWT_SECRET_KEY     = (auto-generate a strong secret)
 #   CORS_ORIGINS       = https://your-frontend.up.railway.app
 #   DB_NAME            = mantezreels
-#   PORT               = 8001
 #
 # Optional:
+#   RAILPACK_PYTHON_VERSION = 3.12  (defaults to 3.13)
 #   MEDIA_DIR          = /tmp/backend/media
 #   TRUSTED_PROXY_COUNT = 1
 #   SENTRY_DSN         = (from sentry.io)
