@@ -28,21 +28,24 @@ services:
       - DB_NAME=portfolio_db
       - JWT_SECRET_KEY=local-dev-secret-change-in-production-1234567890
       - CORS_ORIGINS=http://localhost:3000,http://localhost:80,http://localhost
+      - PORT=8001
     depends_on:
       - mongodb
 
-  # Frontend (React served by Nginx)
+  # Frontend (React served by Express server.js)
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        # Empty BACKEND_URL for local dev - nginx will proxy to backend
+        # Backend URL for API proxy — empty means server.js proxies to localhost:8001
         - REACT_APP_BACKEND_URL=
     container_name: portfolio-frontend
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "80:3000"
+    environment:
+      - PORT=3000
     depends_on:
       - backend
 
