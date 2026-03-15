@@ -1,8 +1,10 @@
 # Railway Configuration for Mantez Reels Backend (FastAPI)
-# Uses Railpack (auto-detects Python + pip from requirements.txt + server.py)
+# Railpack auto-detects Python from requirements.txt + server.py
+# and automatically installs pip + dependencies.
+# Forces RAILPACK builder to skip the Dockerfile (which is for Docker Compose).
 
 [build]
-buildCommand = "pip install -r requirements.txt"
+builder = "RAILPACK"
 
 [deploy]
 startCommand = "uvicorn server:app --host 0.0.0.0 --port ${PORT:-8001}"
