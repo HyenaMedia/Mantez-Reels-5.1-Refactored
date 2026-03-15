@@ -1,5 +1,9 @@
 # Railway Configuration for Mantez Reels Frontend (React + Node)
 # Docs: https://docs.railway.com/reference/config-as-code
+#
+# NOTE: react-snap pre-rendering is skipped on Railway (postbuild uses || echo).
+# The SPA works perfectly without it — pre-rendering is an SEO bonus only.
+# For full pre-rendering, deploy using the Dockerfile instead.
 
 [build]
 builder = "NIXPACKS"
@@ -7,21 +11,15 @@ builder = "NIXPACKS"
 [build.nixpacksPlan.phases.setup]
 nixPkgs = ["nodejs_20"]
 
-[build.nixpacksPlan.phases.install]
-cmds = ["yarn install"]
-
-[build.nixpacksPlan.phases.build]
-cmds = ["yarn build"]
-
-# REACT_APP_* vars must be available at build time (not just runtime)
-# Set them in Railway dashboard BEFORE deploying
+# REACT_APP_* vars must be available at build time (not just runtime).
+# Set them in Railway dashboard BEFORE deploying.
 
 [deploy]
 startCommand = "node server.js"
-healthcheckPath = "/"
-healthcheckTimeout = 30
+healthcheckPath = "/health"
+healthcheckTimeout = 60
 restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 3
+restartPolicyMaxRetries = 5
 
 # Environment variables — set these in the Railway dashboard:
 #
