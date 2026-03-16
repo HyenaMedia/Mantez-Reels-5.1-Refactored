@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, FastAPI, Request, Response
+from fastapi import APIRouter, Depends, FastAPI, Request, Response
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
@@ -18,6 +18,9 @@ from starlette.middleware.cors import CORSMiddleware
 
 # Import database
 from database import db
+
+# Import auth
+from auth import require_auth
 
 # Import network utils
 from utils.network import get_real_ipaddr
