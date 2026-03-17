@@ -83,28 +83,6 @@ const AdminDashboard = () => {
     if (activeTab === 'portfolio') loadPortfolio();
   }, [activeTab]);
 
-  const handleNewAction = (action) => {
-    switch (action) {
-      case 'portfolio':
-        setActiveTab('portfolio');
-        setShowEditor(true);
-        setEditingItem(null);
-        break;
-      case 'media':
-        setActiveTab('media');
-        document.getElementById('media-upload-input')?.click();
-        break;
-      case 'user':
-        setActiveTab('users');
-        break;
-      case 'compose':
-        setActiveTab('messages');
-        break;
-      default:
-        break;
-    }
-  };
-
   const pageInfo = PAGE_INFO[activeTab] || PAGE_INFO.dashboard;
 
   return (
@@ -117,9 +95,9 @@ const AdminDashboard = () => {
         <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] pointer-events-none" />
 
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
-        <TopBar title={pageInfo.title} subtitle={pageInfo.subtitle} isCollapsed={isCollapsed} activeTab={activeTab} onNewAction={handleNewAction} />
+        <TopBar title={pageInfo.title} subtitle={pageInfo.subtitle} isCollapsed={isCollapsed} />
 
-        <div className={`transition-all duration-300 pt-28 ${isCollapsed ? 'ml-20' : 'ml-64'} relative z-0`}>
+        <div className={`transition-all duration-300 pt-24 ${isCollapsed ? 'ml-20' : 'ml-64'} relative z-0`}>
           <div className="p-6 lg:p-8">
 
             {/* Default Password Warning */}

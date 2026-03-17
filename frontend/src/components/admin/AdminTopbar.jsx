@@ -229,11 +229,10 @@ const AdminTopbarInner = ({ user, logout, logoUrl, siteName, isAdminPage, isBuil
             <span className="hidden lg:inline">Builder</span>
           </Link>
 
-          {/* + New button */}
+          {/* + Quick actions button */}
           <div className="relative">
-            <button onClick={() => { closeAll(); setShowNewMenu(s => !s); }} className="flex items-center gap-1 px-2 py-1 rounded-md text-xs bg-purple-600/80 hover:bg-purple-600 text-white transition-colors">
+            <button onClick={() => { closeAll(); setShowNewMenu(s => !s); }} className="flex items-center px-1.5 py-1 rounded-md text-xs bg-purple-600/80 hover:bg-purple-600 text-white transition-colors" title="Quick actions">
               <Plus className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">New</span>
             </button>
             {showNewMenu && (
               <>
