@@ -4,7 +4,7 @@ import { AdminThemeProvider } from '../contexts/AdminThemeContext';
 import { Button } from '../components/ui/button';
 import SectionErrorBoundary from '../components/SectionErrorBoundary';
 import Sidebar from '../components/admin/Sidebar';
-import TopBar from '../components/admin/TopBar';
+// TopBar removed — page title now shown in the main AdminTopbar
 import DashboardOverview from '../components/admin/DashboardOverview';
 import ChangePasswordModal from '../components/admin/ChangePasswordModal';
 import axios from 'axios';
@@ -32,19 +32,7 @@ const AdminFallback = () => (
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
 const API = `${BACKEND_URL}/api`;
 
-const PAGE_INFO = {
-  dashboard: { title: 'Dashboard', subtitle: "Welcome back! Here's your overview" },
-  content: { title: 'Content Management', subtitle: 'Edit your website content' },
-  portfolio: { title: 'Portfolio', subtitle: 'Manage your work showcase' },
-  media: { title: 'Media Library', subtitle: 'Upload and manage media files' },
-  messages: { title: 'Messages', subtitle: 'View contact form submissions' },
-  analytics: { title: 'Analytics', subtitle: 'Track your site performance' },
-  users: { title: 'User Management', subtitle: 'Manage admin users' },
-  security: { title: 'Security Center', subtitle: 'Monitor site security' },
-  integrations: { title: 'Integrations', subtitle: 'Configure third-party services' },
-  activity: { title: 'Activity Log', subtitle: 'Audit trail of all actions' },
-  settings: { title: 'Settings', subtitle: 'Configure your website' },
-};
+// Page titles now shown in AdminTopbar via PAGE_TITLES lookup
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -83,8 +71,6 @@ const AdminDashboard = () => {
     if (activeTab === 'portfolio') loadPortfolio();
   }, [activeTab]);
 
-  const pageInfo = PAGE_INFO[activeTab] || PAGE_INFO.dashboard;
-
   return (
     <AdminThemeProvider>
       <div className="min-h-screen bg-black relative overflow-hidden transition-colors duration-300 pt-12">
@@ -95,9 +81,8 @@ const AdminDashboard = () => {
         <div className="fixed inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] pointer-events-none" />
 
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
-        <TopBar title={pageInfo.title} subtitle={pageInfo.subtitle} isCollapsed={isCollapsed} />
 
-        <div className={`transition-all duration-300 pt-24 ${isCollapsed ? 'ml-20' : 'ml-64'} relative z-0`}>
+        <div className={`transition-all duration-300 pt-12 ${isCollapsed ? 'ml-20' : 'ml-64'} relative z-0`}>
           <div className="p-6 lg:p-8">
 
             {/* Default Password Warning */}

@@ -15,6 +15,21 @@ import { useToast } from '../../hooks/use-toast';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
 
+/* Page title lookup — matches AdminDashboard's ?tab= param */
+const PAGE_TITLES = {
+  dashboard: 'Dashboard',
+  content: 'Content',
+  portfolio: 'Portfolio',
+  media: 'Media Library',
+  messages: 'Messages',
+  analytics: 'Analytics',
+  users: 'Users',
+  security: 'Security',
+  integrations: 'Integrations',
+  activity: 'Activity Log',
+  settings: 'Settings',
+};
+
 /* ── tiny reusable dropdown backdrop ── */
 const Backdrop = ({ onClick }) => (
   <div className="fixed inset-0 z-[9998]" onClick={onClick} />
@@ -45,18 +60,20 @@ const AdminTopbar = () => {
   const siteName = settings?.site?.siteName || 'Mantez Reels';
   const isAdminPage = location.pathname.includes('/admin');
   const isBuilderPage = location.pathname.includes('/theme-builder');
+  const tab = new URLSearchParams(location.search).get('tab') || 'dashboard';
+  const pageTitle = isBuilderPage ? 'Theme Builder' : (PAGE_TITLES[tab] || 'Dashboard');
 
   return (
     <AdminTopbarInner
       user={user} logout={logout} logoUrl={logoUrl} siteName={siteName}
       isAdminPage={isAdminPage} isBuilderPage={isBuilderPage}
-      navigate={navigate} toast={toast}
+      navigate={navigate} toast={toast} pageTitle={pageTitle}
     />
   );
 };
 
 /* Separate inner component so hooks work without conditional returns */
-const AdminTopbarInner = ({ user, logout, logoUrl, siteName, isAdminPage, isBuilderPage, navigate, toast }) => {
+const AdminTopbarInner = ({ user, logout, logoUrl, siteName, isAdminPage, isBuilderPage, navigate, toast, pageTitle }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNewMenu, setShowNewMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -209,10 +226,13 @@ const AdminTopbarInner = ({ user, logout, logoUrl, siteName, isAdminPage, isBuil
 
         {/* ─── LEFT: Logo + Nav ─── */}
         <div className="flex items-center gap-1 flex-shrink-0">
-          <Link to="/" className="flex items-center gap-1.5 px-2 py-1 rounded-md text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors" title="View site">
+          <Link to="/" className="flex items-center gap-1.5 px-2 py-1 rounded-md text-gray-300 hover:bg-gray-800 hover:text-white transition-colors" title="View site">
             {logoUrl
               ? <img src={logoUrl} alt={siteName} className="h-5 w-auto object-contain" />
-              : <span className="font-semibold text-sm bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{siteName}</span>
+              : <div className="flex flex-col leading-none">
+                  <span className="font-semibold text-xs bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{siteName}</span>
+                  <span className="text-[9px] text-gray-500 mt-0.5">Admin Panel</span>
+                </div>
             }
             <ExternalLink className="w-3 h-3 text-gray-500" />
           </Link>
@@ -257,10 +277,12 @@ const AdminTopbarInner = ({ user, logout, logoUrl, siteName, isAdminPage, isBuil
           </div>
         </div>
 
-        {/* ─── CENTER: Builder controls (only on builder page) ─── */}
-        <div className="flex-1 flex items-center justify-center gap-2">
+        {/* ─── CENTER: Page title + builder controls ─── */}
+        <div className="flex-1 flex items-center justify-center gap-3">
+          <span className="text-sm font-medium text-gray-300 hidden sm:inline">{pageTitle}</span>
           {isBuilderPage && (
             <>
+              <div className="w-px h-4 bg-gray-700" />
               <button className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs text-gray-400 hover:bg-gray-800 hover:text-white transition-colors">
                 <Eye className="w-3.5 h-3.5" /> <span className="hidden md:inline">Preview</span>
               </button>
