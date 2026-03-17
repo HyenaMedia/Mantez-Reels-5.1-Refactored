@@ -14,7 +14,12 @@ class DatabaseProxy:
             raise RuntimeError("MONGO_URL environment variable is required but not set")
         if not db_name:
             raise RuntimeError("DB_NAME environment variable is required but not set")
-        self._client = AsyncIOMotorClient(mongo_url, tls=bool(os.environ.get('MONGO_TLS', '')))
+        # mongodb+srv:// URLs auto-enable TLS; only override if MONGO_TLS is explicitly set
+        tls_env = os.environ.get('MONGO_TLS')
+        connect_kwargs = {}
+        if tls_env is not None:
+            connect_kwargs['tls'] = tls_env.lower() in ('1', 'true', 'yes')
+        self._client = AsyncIOMotorClient(mongo_url, **connect_kwargs)
         self._db = self._client[db_name]
         # Verify connection
         await self._db.command("ping")
