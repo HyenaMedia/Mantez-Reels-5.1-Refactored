@@ -75,7 +75,7 @@ const FeatureFlagsPanel = ({ isOpen, onClose }) => {
       />
 
       {/* Panel */}
-      <div className="fixed right-0 top-0 bottom-0 w-full sm:w-[480px] bg-gray-900 shadow-2xl z-[9999] flex flex-col animate-in slide-in-from-right duration-300" aria-label="Feature flag details">
+      <div className="fixed right-0 top-0 bottom-0 w-full sm:w-[480px] bg-gray-900 shadow-2xl z-[9999] flex flex-col animate-in slide-in-from-right duration-300" role="dialog" aria-modal="true" aria-label="Feature flag details">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800">
           <div>

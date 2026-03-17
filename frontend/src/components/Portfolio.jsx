@@ -91,7 +91,7 @@ const PortfolioCard = ({ item, index }) => {
           </div>
 
           {/* Play button with glassmorphism */}
-          <div className="relative w-24 h-24 rounded-full bg-white/10 backdrop-blur-xl flex items-center justify-center border-2 border-white/30 shadow-2xl hover:bg-white/20 hover:scale-110 hover:border-purple-400/50 transition-all duration-300" aria-label={`Play ${item.title}`}>
+          <div className="relative w-24 h-24 rounded-full bg-white/10 backdrop-blur-xl flex items-center justify-center border-2 border-white/30 shadow-2xl hover:bg-white/20 hover:scale-110 hover:border-purple-400/50 transition-all duration-300" role="button" aria-label={`Play ${item.title}`}>
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-600/20 to-pink-600/20"></div>
             <Play className="text-white relative z-10 ml-1.5" size={36} fill="white" />
           </div>
@@ -160,8 +160,8 @@ const Portfolio = () => {
         setPortfolioItems(DEMO_PROJECTS);
       }
     } catch (error) {
+      // Silently fall back to demo projects — no need to alarm visitors
       console.error('Failed to fetch portfolio:', error);
-      toast({ title: 'Failed to load portfolio', variant: 'destructive' });
       setPortfolioItems(DEMO_PROJECTS);
     } finally {
       setLoading(false);

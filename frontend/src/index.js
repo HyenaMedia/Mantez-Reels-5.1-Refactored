@@ -1,5 +1,5 @@
 import React from 'react';
-import { createRoot, hydrateRoot } from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import '@/index.css';
 import App from '@/App';
@@ -17,6 +17,14 @@ if (process.env.NODE_ENV === 'development') {
 
 const rootElement = document.getElementById('root');
 
+// Clear any pre-rendered content from react-snap to avoid hydration mismatches.
+// Dynamic components (Portfolio, Blog, etc.) start with loading states that differ
+// from the pre-rendered final state, causing React error #418 and potential crashes.
+// The app-shell loading screen covers the brief re-render, so UX is unaffected.
+if (rootElement.hasChildNodes()) {
+  rootElement.innerHTML = '';
+}
+
 const AppTree = (
   <BrowserRouter>
     <ThemeProvider>
@@ -25,10 +33,4 @@ const AppTree = (
   </BrowserRouter>
 );
 
-// If react-snap pre-rendered this route, hydrate the existing DOM.
-// Otherwise do a normal SPA mount (admin, login, etc.)
-if (rootElement.hasChildNodes()) {
-  hydrateRoot(rootElement, AppTree);
-} else {
-  createRoot(rootElement).render(AppTree);
-}
+createRoot(rootElement).render(AppTree);
