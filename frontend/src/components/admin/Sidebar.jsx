@@ -10,6 +10,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Shield,
+  Sparkles,
   Palette,
   BarChart3,
   Plug,
