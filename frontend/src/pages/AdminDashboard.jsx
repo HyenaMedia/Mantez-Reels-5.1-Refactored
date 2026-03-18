@@ -6,6 +6,8 @@ import SectionErrorBoundary from '../components/SectionErrorBoundary';
 import Sidebar from '../components/admin/Sidebar';
 // TopBar removed — page title now shown in the main AdminTopbar
 import DashboardOverview from '../components/admin/DashboardOverview';
+import PagesManager from '../components/admin/PagesManager';
+import BlogManager from '../components/admin/BlogManager';
 import ChangePasswordModal from '../components/admin/ChangePasswordModal';
 import axios from 'axios';
 import { useToast } from '../hooks/use-toast';
@@ -34,6 +36,8 @@ const API = `${BACKEND_URL}/api`;
 
 const PAGE_INFO = {
   dashboard: { title: 'Dashboard', subtitle: "Here's your overview" },
+  pages: { title: 'Pages', subtitle: 'Manage your site pages' },
+  blog: { title: 'Blog', subtitle: 'Write and manage blog posts' },
   content: { title: 'Content', subtitle: 'Edit your website content' },
   portfolio: { title: 'Portfolio', subtitle: 'Manage your work showcase' },
   media: { title: 'Media Library', subtitle: 'Upload and manage files' },
@@ -127,6 +131,8 @@ const AdminDashboard = () => {
             <SectionErrorBoundary name="Admin Panel">
               <Suspense fallback={<AdminFallback />}>
                 {activeTab === 'dashboard' && <DashboardOverview />}
+                {activeTab === 'pages' && <PagesManager />}
+                {activeTab === 'blog' && <BlogManager />}
                 {activeTab === 'content' && <ContentEditor />}
                 {activeTab === 'portfolio' && (
                   showEditor ? (

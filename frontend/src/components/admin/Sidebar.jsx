@@ -14,6 +14,8 @@ import {
   BarChart3,
   Plug,
   Activity,
+  Layers,
+  PenLine,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -80,6 +82,18 @@ const Sidebar = ({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }) => {
     {
       title: 'Content',
       items: [
+        {
+          id: 'pages',
+          icon: Layers,
+          label: 'Pages',
+          color: '#8b5cf6',
+        },
+        {
+          id: 'blog',
+          icon: PenLine,
+          label: 'Blog',
+          color: '#06b6d4',
+        },
         {
           id: 'content',
           icon: FileText,
