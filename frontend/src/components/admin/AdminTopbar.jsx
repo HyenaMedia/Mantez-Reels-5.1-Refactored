@@ -3,8 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Paintbrush, Settings, Eye, Save, ChevronDown, LogOut,
   ExternalLink, Plus, Search, Bell, X, Check,
-  AlertTriangle, Image, Users, Mail, FolderOpen, Shield,
-  FileText, Upload, UserPlus, Wrench, Power, BarChart3, Globe
+  AlertTriangle, FolderOpen, FileText, Upload, Image
 } from 'lucide-react';
 import axios from 'axios';
 import { useAuth } from '../../contexts/AuthContext';
@@ -134,53 +133,12 @@ const AdminTopbarInner = ({ user, logout, logoUrl, siteName, isAdminPage, isBuil
     toast({ title: 'Marked as read' });
   };
 
-  /* ── "+" menu items ── */
-  const newMenuSections = [
-    {
-      label: 'Content',
-      items: [
-        { icon: FolderOpen, label: 'New Project', action: () => navigate('/admin?tab=portfolio&action=new') },
-        { icon: FileText, label: 'New Blog Post', action: () => navigate('/admin?tab=content&section=blog') },
-        { icon: FileText, label: 'Edit Page', action: () => navigate('/admin/theme-builder') },
-      ],
-    },
-    {
-      label: 'Media & Users',
-      items: [
-        { icon: Upload, label: 'Upload Media', action: () => navigate('/admin?tab=media') },
-        { icon: UserPlus, label: 'Add User', action: () => navigate('/admin?tab=users&action=new') },
-        { icon: Mail, label: 'View Messages', action: () => navigate('/admin?tab=messages') },
-      ],
-    },
-    {
-      label: 'Tools',
-      items: [
-        { icon: Wrench, label: 'Flush Cache', action: async () => {
-          try {
-            const token = localStorage.getItem('token');
-            await axios.post(`${BACKEND_URL}/api/settings/flush-cache`, {}, { headers: { Authorization: `Bearer ${token}` } });
-            toast({ title: 'Cache flushed' });
-          } catch { toast({ title: 'Failed', variant: 'destructive' }); }
-        }},
-        { icon: Shield, label: 'Security', action: () => navigate('/admin?tab=security') },
-        { icon: Power, label: 'Maintenance Mode', action: () => navigate('/admin?tab=settings') },
-      ],
-    },
-    {
-      label: 'Navigate',
-      items: [
-        { icon: Image, label: 'Media Library', action: () => navigate('/admin?tab=media') },
-        { icon: Users, label: 'Users', action: () => navigate('/admin?tab=users') },
-        { icon: BarChart3, label: 'Activity Log', action: () => navigate('/admin?tab=activity') },
-        { icon: Settings, label: 'Settings', action: () => navigate('/admin?tab=settings') },
-      ],
-    },
-    {
-      label: 'External',
-      items: [
-        { icon: Globe, label: 'View Site', action: () => window.open('/', '_blank') },
-      ],
-    },
+  /* ── "New" menu — content creation only ── */
+  const newMenuItems = [
+    { icon: FolderOpen, label: 'New Project', action: () => navigate('/admin?tab=portfolio&action=new') },
+    { icon: FileText, label: 'New Blog Post', action: () => navigate('/admin?tab=content&section=blog') },
+    { icon: Upload, label: 'Upload Media', action: () => navigate('/admin?tab=media') },
+    { icon: Image, label: 'Edit Page', action: () => navigate('/admin/theme-builder') },
   ];
 
   /* ── search results (simple page filter) ── */
@@ -231,27 +189,22 @@ const AdminTopbarInner = ({ user, logout, logoUrl, siteName, isAdminPage, isBuil
             <span className="hidden lg:inline">Builder</span>
           </Link>
 
-          {/* + Quick actions button */}
+          {/* + New content button */}
           <div className="relative">
-            <button onClick={() => { closeAll(); setShowNewMenu(s => !s); }} className="flex items-center px-1.5 py-1 rounded-md text-xs bg-purple-600/80 hover:bg-purple-600 text-white transition-colors" title="Quick actions">
+            <button onClick={() => { closeAll(); setShowNewMenu(s => !s); }} className="flex items-center gap-1 px-2 py-1 rounded-md text-xs bg-purple-600/80 hover:bg-purple-600 text-white transition-colors" title="Create new">
               <Plus className="w-3.5 h-3.5" />
+              <span className="hidden md:inline">New</span>
             </button>
             {showNewMenu && (
               <>
                 <Backdrop onClick={() => setShowNewMenu(false)} />
-                <div className="absolute left-0 top-full mt-2 w-56 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl z-[10000] py-1 max-h-[70vh] overflow-y-auto">
-                  {newMenuSections.map((section, si) => (
-                    <div key={si}>
-                      <div className="px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider text-gray-500 font-semibold">{section.label}</div>
-                      {section.items.map((item, ii) => (
-                        <button key={ii} onClick={() => { setShowNewMenu(false); item.action(); }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
-                          <item.icon className="w-4 h-4 text-gray-500" />
-                          {item.label}
-                        </button>
-                      ))}
-                      {si < newMenuSections.length - 1 && <div className="border-b border-gray-700 my-1" />}
-                    </div>
+                <div className="absolute left-0 top-full mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl z-[10000] py-1">
+                  {newMenuItems.map((item, i) => (
+                    <button key={i} onClick={() => { setShowNewMenu(false); item.action(); }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors">
+                      <item.icon className="w-4 h-4 text-purple-400" />
+                      {item.label}
+                    </button>
                   ))}
                 </div>
               </>
