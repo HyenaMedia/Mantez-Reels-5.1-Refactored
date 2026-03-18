@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from auth import require_auth
 from routes.activity_routes import log_activity
+from services.cache_service import cache
 from utils.constants import utcnow
 from utils.crud import create_document
 from utils.decorators import handle_exceptions
@@ -50,6 +51,7 @@ class BulkDeleteRequest(BaseModel):
 @handle_exceptions("create portfolio item")
 async def create_portfolio_item(request: Request, item: PortfolioItem, current_user: dict = Depends(require_auth)):
     """Create a new portfolio item"""
+    cache.invalidate_pattern("portfolio:")
     # Verify thumbnail exists
     thumbnail = await db.media.find_one({'file_id': item.thumbnail_id})
     if not thumbnail:
@@ -95,6 +97,11 @@ async def list_portfolio_items(
     limit: int = 50
 ):
     """List portfolio items with filters"""
+    cache_key = f"portfolio:list:{published_only}:{featured_only}:{category}:{limit}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+
     query = {}
     if published_only:
         query['published'] = True
@@ -116,11 +123,13 @@ async def list_portfolio_items(
 
         result_items.append(item)
 
-    return {
+    result = {
         'success': True,
         'count': len(result_items),
         'items': result_items
     }
+    cache.set(cache_key, result, 60)
+    return result
 
 
 @router.get("/{item_id}")
@@ -154,6 +163,7 @@ async def get_portfolio_item(item_id: str):
 @handle_exceptions("update portfolio item")
 async def update_portfolio_item(request: Request, item_id: str, item: PortfolioItem, current_user: dict = Depends(require_auth)):
     """Update a portfolio item"""
+    cache.invalidate_pattern("portfolio:")
     existing = await db.portfolio.find_one({'id': item_id})
     if not existing:
         raise HTTPException(status_code=404, detail="Portfolio item not found")
@@ -196,6 +206,7 @@ async def update_portfolio_item(request: Request, item_id: str, item: PortfolioI
 @handle_exceptions("delete portfolio item")
 async def delete_portfolio_item(request: Request, item_id: str, current_user: dict = Depends(require_auth)):
     """Delete a portfolio item"""
+    cache.invalidate_pattern("portfolio:")
     item = await db.portfolio.find_one({'id': item_id})
 
     if not item:
@@ -231,18 +242,23 @@ async def delete_portfolio_item(request: Request, item_id: str, current_user: di
 @handle_exceptions("list categories")
 async def list_categories():
     """Get all unique categories"""
+    cached = cache.get("portfolio:categories")
+    if cached is not None:
+        return cached
     categories = await db.portfolio.distinct('category')
-
-    return {
+    result = {
         'success': True,
         'categories': categories
     }
+    cache.set("portfolio:categories", result, 120)
+    return result
 
 
 @router.post("/bulk-delete")
 @handle_exceptions("bulk delete portfolio items")
 async def bulk_delete_portfolio_items(request: Request, bulk_request: BulkDeleteRequest, current_user: dict = Depends(require_auth)):
     """Delete multiple portfolio items at once"""
+    cache.invalidate_pattern("portfolio:")
     if not bulk_request.ids:
         raise HTTPException(status_code=400, detail="No item IDs provided")
 

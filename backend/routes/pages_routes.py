@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from auth import require_auth
 from database import db
+from services.cache_service import cache
 
 router = APIRouter(prefix="/api/pages", tags=["pages"])
 logger = logging.getLogger(__name__)
@@ -62,14 +63,20 @@ async def get_page(page_id: str, user: dict = Depends(require_auth)):
 @router.get("/{page_id}/public")
 async def get_page_public(page_id: str):
     """Get page by ID (public access - no auth required)"""
+    cache_key = f"pages:public:{page_id}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
     try:
         page_doc = await db[COLLECTION].find_one({"id": page_id}, {"_id": 0})
 
         if not page_doc:
-            # Return default structure for home page
-            return _default_home_page()
+            result = _default_home_page()
+        else:
+            result = {"page": page_doc.get("data", page_doc)}
 
-        return {"page": page_doc.get("data", page_doc)}
+        cache.set(cache_key, result, 120)
+        return result
     except Exception as e:
         logger.error(f"Error getting public page: {e}")
         raise HTTPException(status_code=500, detail="Failed to get page")
@@ -83,6 +90,7 @@ async def update_page(
 ):
     """Update page — upserts into MongoDB"""
     try:
+        cache.invalidate_pattern("pages:")
         doc = {
             "id": page_id,
             "name": page_state.page.get("meta", {}).get("name", page_id),

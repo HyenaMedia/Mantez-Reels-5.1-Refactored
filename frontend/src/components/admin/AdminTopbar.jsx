@@ -10,6 +10,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import CacheIndicator from './CacheIndicator';
 
 const AdminTopbar = () => {
   const { user, logout } = useAuth();
@@ -66,6 +67,9 @@ const AdminTopbar = () => {
             </>
           )}
         </div>
+
+        {/* Cache Performance Indicator */}
+        <CacheIndicator />
 
         {/* Right Section - User Profile */}
         <div className="flex items-center gap-2">

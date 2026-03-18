@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 from auth import require_auth
 from database import db
+from services.cache_service import cache
 
 router = APIRouter(prefix="/api/theme", tags=["theme"])
 logger = logging.getLogger(__name__)
@@ -130,6 +131,7 @@ async def update_theme_config(
 ):
     """Update global styles / theme configuration"""
     try:
+        cache.delete("theme:public")
         theme_dict = theme_data.model_dump()
         theme_dict["updated_at"] = datetime.now(UTC)
         theme_dict["updated_by"] = user.get("username", "admin")
@@ -147,11 +149,14 @@ async def update_theme_config(
 @router.get("/config/public")
 async def get_public_theme_config():
     """Get global styles (public, no auth)"""
+    cached = cache.get("theme:public")
+    if cached is not None:
+        return cached
     try:
         theme = await db[COLLECTION].find_one({"id": "theme_config"}, {"_id": 0})
-        if not theme:
-            return DEFAULT_THEME.model_dump()
-        return theme
+        result = theme if theme else DEFAULT_THEME.model_dump()
+        cache.set("theme:public", result, 120)
+        return result
     except Exception as e:
         logger.error(f"Error fetching public theme config: {e}")
         return DEFAULT_THEME.model_dump()
@@ -161,6 +166,7 @@ async def get_public_theme_config():
 async def reset_theme_to_default(user: dict = Depends(require_auth)):
     """Reset theme to default"""
     try:
+        cache.delete("theme:public")
         theme_dict = DEFAULT_THEME.model_dump()
         theme_dict["updated_at"] = datetime.now(UTC)
         theme_dict["updated_by"] = user.get("username", "admin")

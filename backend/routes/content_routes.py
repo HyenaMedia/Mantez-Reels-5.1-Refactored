@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 from auth import require_auth
+from services.cache_service import cache
 
 # Add parent directory to path to import security_utils
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -13,6 +14,8 @@ from utils.constants import utcnow
 router = APIRouter(prefix="/api/content", tags=["content"])
 
 from database import db
+
+CONTENT_CACHE_TTL = 120  # seconds
 
 
 # Models for different content sections
@@ -117,9 +120,12 @@ class ScrollProgressContent(BaseModel):
 @router.get("/hero")
 async def get_hero():
     """Get Hero section content"""
+    cached = cache.get("content:hero")
+    if cached is not None:
+        return cached
     content = await db.content.find_one({'section': 'hero'}, {"_id": 0})
     if not content:
-        return {
+        result = {
             'success': True,
             'content': {
                 'brand_name': 'Mantez Reels',
@@ -130,6 +136,8 @@ async def get_hero():
                 'cta_button_text': 'Send me a message'
             }
         }
+        cache.set("content:hero", result, CONTENT_CACHE_TTL)
+        return result
 
     # Remove internal fields that shouldn't be sent to frontend
     if 'section' in content:
@@ -139,11 +147,14 @@ async def get_hero():
     if 'updated_by' in content:
         del content['updated_by']
 
-    return {'success': True, 'content': content}
+    result = {'success': True, 'content': content}
+    cache.set("content:hero", result, CONTENT_CACHE_TTL)
+    return result
 
 @router.put("/hero")
 async def update_hero(content: HeroContent, current_user: dict = Depends(require_auth)):
     """Update Hero section content - Admin only"""
+    cache.delete("content:hero")
     await db.content.update_one(
         {'section': 'hero'},
         {
@@ -164,6 +175,9 @@ async def update_hero(content: HeroContent, current_user: dict = Depends(require
 @router.get("/about")
 async def get_about():
     """Get About section content"""
+    cached = cache.get("content:about")
+    if cached is not None:
+        return cached
     content = await db.content.find_one({'section': 'about'})
     if not content:
         # Return default content
@@ -186,11 +200,14 @@ async def get_about():
     # Remove internal fields
     for key in ['_id', 'section', 'updated_at', 'updated_by']:
         content.pop(key, None)
-    return {'success': True, 'content': content}
+    result = {'success': True, 'content': content}
+    cache.set("content:about", result, CONTENT_CACHE_TTL)
+    return result
 
 @router.put("/about")
 async def update_about(content: AboutContent, current_user: dict = Depends(require_auth)):
     """Update About section content - Admin only"""
+    cache.delete("content:about")
     await db.content.update_one(
         {'section': 'about'},
         {
@@ -214,6 +231,9 @@ async def update_about(content: AboutContent, current_user: dict = Depends(requi
 @router.get("/contact-info")
 async def get_contact_info():
     """Get Contact information"""
+    cached = cache.get("content:contact-info")
+    if cached is not None:
+        return cached
     content = await db.content.find_one({'section': 'contact-info'})
     if not content:
         return {
@@ -239,11 +259,14 @@ async def get_contact_info():
     # Remove internal fields
     for key in ['_id', 'section', 'updated_at', 'updated_by']:
         content.pop(key, None)
-    return {'success': True, 'content': content}
+    result = {'success': True, 'content': content}
+    cache.set("content:contact-info", result, CONTENT_CACHE_TTL)
+    return result
 
 @router.put("/contact-info")
 async def update_contact_info(content: ContactInfo, current_user: dict = Depends(require_auth)):
     """Update Contact information - Admin only"""
+    cache.delete("content:contact-info")
     await db.content.update_one(
         {'section': 'contact-info'},
         {
@@ -264,6 +287,9 @@ async def update_contact_info(content: ContactInfo, current_user: dict = Depends
 @router.get("/footer")
 async def get_footer():
     """Get Footer content"""
+    cached = cache.get("content:footer")
+    if cached is not None:
+        return cached
     content = await db.content.find_one({'section': 'footer'})
     if not content:
         return {
@@ -278,11 +304,14 @@ async def get_footer():
     # Remove internal fields
     for key in ['_id', 'section', 'updated_at', 'updated_by']:
         content.pop(key, None)
-    return {'success': True, 'content': content}
+    result = {'success': True, 'content': content}
+    cache.set("content:footer", result, CONTENT_CACHE_TTL)
+    return result
 
 @router.put("/footer")
 async def update_footer(content: FooterContent, current_user: dict = Depends(require_auth)):
     """Update Footer content - Admin only"""
+    cache.delete("content:footer")
     await db.content.update_one(
         {'section': 'footer'},
         {
@@ -303,6 +332,9 @@ async def update_footer(content: FooterContent, current_user: dict = Depends(req
 @router.get("/services")
 async def get_services():
     """Get Services list"""
+    cached = cache.get("content:services")
+    if cached is not None:
+        return cached
     content = await db.content.find_one({'section': 'services'})
     if not content:
         # Return default services
@@ -320,11 +352,14 @@ async def get_services():
             ]
         }
 
-    return {'success': True, 'services': content.get('services', [])}
+    result = {'success': True, 'services': content.get('services', [])}
+    cache.set("content:services", result, CONTENT_CACHE_TTL)
+    return result
 
 @router.put("/services")
 async def update_services(services: list[ServiceItem], current_user: dict = Depends(require_auth)):
     """Update Services list - Admin only"""
+    cache.delete("content:services")
     await db.content.update_one(
         {'section': 'services'},
         {
@@ -345,6 +380,9 @@ async def update_services(services: list[ServiceItem], current_user: dict = Depe
 @router.get("/faqs")
 async def get_faqs():
     """Get FAQ list"""
+    cached = cache.get("content:faqs")
+    if cached is not None:
+        return cached
     content = await db.content.find_one({'section': 'faqs'})
     if not content:
         return {
@@ -361,11 +399,14 @@ async def get_faqs():
             ]
         }
 
-    return {'success': True, 'faqs': content.get('faqs', [])}
+    result = {'success': True, 'faqs': content.get('faqs', [])}
+    cache.set("content:faqs", result, CONTENT_CACHE_TTL)
+    return result
 
 @router.put("/faqs")
 async def update_faqs(faqs: list[FAQItem], current_user: dict = Depends(require_auth)):
     """Update FAQ list - Admin only"""
+    cache.invalidate_pattern("content:faq")
     await db.content.update_one(
         {'section': 'faqs'},
         {
@@ -386,6 +427,9 @@ async def update_faqs(faqs: list[FAQItem], current_user: dict = Depends(require_
 @router.get("/testimonials")
 async def get_testimonials():
     """Get Testimonials list"""
+    cached = cache.get("content:testimonials")
+    if cached is not None:
+        return cached
     content = await db.content.find_one({'section': 'testimonials'})
     if not content:
         return {
@@ -401,11 +445,14 @@ async def get_testimonials():
             ]
         }
 
-    return {'success': True, 'testimonials': content.get('testimonials', [])}
+    result = {'success': True, 'testimonials': content.get('testimonials', [])}
+    cache.set("content:testimonials", result, CONTENT_CACHE_TTL)
+    return result
 
 @router.put("/testimonials")
 async def update_testimonials(testimonials: list[TestimonialItem], current_user: dict = Depends(require_auth)):
     """Update Testimonials list - Admin only"""
+    cache.delete("content:testimonials")
     await db.content.update_one(
         {'section': 'testimonials'},
         {
@@ -426,6 +473,9 @@ async def update_testimonials(testimonials: list[TestimonialItem], current_user:
 @router.get("/blog")
 async def get_blog():
     """Get Blog posts"""
+    cached = cache.get("content:blog")
+    if cached is not None:
+        return cached
     content = await db.content.find_one({'section': 'blog'})
     if not content:
         return {
@@ -441,11 +491,14 @@ async def get_blog():
             ]
         }
 
-    return {'success': True, 'posts': content.get('posts', [])}
+    result = {'success': True, 'posts': content.get('posts', [])}
+    cache.set("content:blog", result, CONTENT_CACHE_TTL)
+    return result
 
 @router.put("/blog")
 async def update_blog(posts: list[BlogPost], current_user: dict = Depends(require_auth)):
     """Update Blog posts - Admin only"""
+    cache.delete("content:blog")
     await db.content.update_one(
         {'section': 'blog'},
         {
@@ -466,6 +519,9 @@ async def update_blog(posts: list[BlogPost], current_user: dict = Depends(requir
 @router.get("/section-labels")
 async def get_section_labels():
     """Get section labels"""
+    cached = cache.get("content:section-labels")
+    if cached is not None:
+        return cached
     content = await db.content.find_one({'section': 'section_labels'})
     if not content:
         return {
@@ -485,11 +541,14 @@ async def get_section_labels():
     # Remove internal fields
     for key in ['_id', 'section', 'updated_at', 'updated_by']:
         content.pop(key, None)
-    return {'success': True, 'content': content}
+    result = {'success': True, 'content': content}
+    cache.set("content:section-labels", result, CONTENT_CACHE_TTL)
+    return result
 
 @router.put("/section-labels")
 async def update_section_labels(labels: SectionLabels, current_user: dict = Depends(require_auth)):
     """Update section labels - Admin only"""
+    cache.delete("content:section-labels")
     await db.content.update_one(
         {'section': 'section_labels'},
         {
@@ -510,6 +569,9 @@ async def update_section_labels(labels: SectionLabels, current_user: dict = Depe
 @router.get("/navbar")
 async def get_navbar():
     """Get Navbar content"""
+    cached = cache.get("content:navbar")
+    if cached is not None:
+        return cached
     content = await db.content.find_one({'section': 'navbar'}, {"_id": 0})
     if not content:
         return {
@@ -522,11 +584,14 @@ async def get_navbar():
             }
         }
 
-    return {'success': True, 'content': content}
+    result = {'success': True, 'content': content}
+    cache.set("content:navbar", result, CONTENT_CACHE_TTL)
+    return result
 
 @router.put("/navbar")
 async def update_navbar(content: NavbarContent, current_user: dict = Depends(require_auth)):
     """Update Navbar content - Admin only"""
+    cache.delete("content:navbar")
     await db.content.update_one(
         {'section': 'navbar'},
         {
@@ -547,6 +612,9 @@ async def update_navbar(content: NavbarContent, current_user: dict = Depends(req
 @router.get("/scroll-progress")
 async def get_scroll_progress():
     """Get Scroll Progress bar content"""
+    cached = cache.get("content:scroll-progress")
+    if cached is not None:
+        return cached
     content = await db.content.find_one({'section': 'scroll_progress'}, {"_id": 0})
     if not content:
         return {
@@ -559,11 +627,14 @@ async def get_scroll_progress():
             }
         }
 
-    return {'success': True, 'content': content}
+    result = {'success': True, 'content': content}
+    cache.set("content:scroll-progress", result, CONTENT_CACHE_TTL)
+    return result
 
 @router.put("/scroll-progress")
 async def update_scroll_progress(content: ScrollProgressContent, current_user: dict = Depends(require_auth)):
     """Update Scroll Progress bar content - Admin only"""
+    cache.delete("content:scroll-progress")
     await db.content.update_one(
         {'section': 'scroll_progress'},
         {
@@ -584,6 +655,9 @@ async def update_scroll_progress(content: ScrollProgressContent, current_user: d
 @router.get("/portfolio")
 async def get_portfolio():
     """Get Portfolio content - Returns list format"""
+    cached = cache.get("content:portfolio")
+    if cached is not None:
+        return cached
     content = await db.content.find_one({'section': 'portfolio'}, {"_id": 0})
     if not content:
         return {
@@ -595,11 +669,14 @@ async def get_portfolio():
             }
         }
 
-    return {'success': True, 'content': content}
+    result = {'success': True, 'content': content}
+    cache.set("content:portfolio", result, CONTENT_CACHE_TTL)
+    return result
 
 @router.put("/portfolio")
 async def update_portfolio(content: dict, current_user: dict = Depends(require_auth)):
     """Update Portfolio section metadata - Admin only"""
+    cache.delete("content:portfolio")
     # Filter out MongoDB internal fields and protected keys to prevent injection
     safe_content = {k: v for k, v in content.items() if not k.startswith('_') and k not in ('section', 'updated_at', 'updated_by')}
     await db.content.update_one(
@@ -621,9 +698,12 @@ async def update_portfolio(content: dict, current_user: dict = Depends(require_a
 @router.get("/faq")
 async def get_faq():
     """Get FAQ section content - wrapper around faqs"""
+    cached = cache.get("content:faq")
+    if cached is not None:
+        return cached
     faq_content = await db.content.find_one({'section': 'faqs'}, {"_id": 0})
 
-    return {
+    result = {
         'success': True,
         'content': {
             'title': 'FAQ',
@@ -631,10 +711,13 @@ async def get_faq():
             'faqs': faq_content.get('faqs', []) if faq_content else []
         }
     }
+    cache.set("content:faq", result, CONTENT_CACHE_TTL)
+    return result
 
 @router.put("/faq")
 async def update_faq(content: dict, current_user: dict = Depends(require_auth)):
     """Update FAQ section - Admin only"""
+    cache.invalidate_pattern("content:faq")
     # Update the title/subtitle in faq wrapper
     await db.content.update_one(
         {'section': 'faq'},
@@ -656,6 +739,9 @@ async def update_faq(content: dict, current_user: dict = Depends(require_auth)):
 @router.get("/contact")
 async def get_contact():
     """Get Contact section"""
+    cached = cache.get("content:contact")
+    if cached is not None:
+        return cached
     content = await db.content.find_one({'section': 'contact'}, {"_id": 0})
     if not content:
         return {
@@ -667,11 +753,14 @@ async def get_contact():
             }
         }
 
-    return {'success': True, 'content': content}
+    result = {'success': True, 'content': content}
+    cache.set("content:contact", result, CONTENT_CACHE_TTL)
+    return result
 
 @router.put("/contact")
 async def update_contact(content: dict, current_user: dict = Depends(require_auth)):
     """Update Contact section - Admin only"""
+    cache.delete("content:contact")
     # Filter out MongoDB internal fields and protected keys to prevent injection
     safe_content = {k: v for k, v in content.items() if not k.startswith('_') and k not in ('section', 'updated_at', 'updated_by')}
     await db.content.update_one(

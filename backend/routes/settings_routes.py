@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 
 from auth import require_auth
+from services.cache_service import cache
 
 from database import db
 
@@ -14,12 +15,8 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
 
-# Simple in-memory TTL cache for public settings (60 second TTL)
-_settings_cache = {"data": None, "expires_at": None}
-
 def _invalidate_settings_cache():
-    _settings_cache["data"] = None
-    _settings_cache["expires_at"] = None
+    cache.delete("settings:public")
 
 # Database connection managed via database module
 
@@ -233,10 +230,9 @@ class SettingsUpdate(BaseModel):
 @router.get("/", response_model=Settings)
 async def get_settings():
     """Get settings (public - returns only safe fields for frontend)"""
-    # Serve from cache if still valid
-    now = datetime.now(UTC)
-    if _settings_cache["data"] and _settings_cache["expires_at"] and now < _settings_cache["expires_at"]:
-        return _settings_cache["data"]
+    cached = cache.get("settings:public")
+    if cached is not None:
+        return cached
 
     settings = await db.settings.find_one({}, {"_id": 0})
 
@@ -262,10 +258,7 @@ async def get_settings():
 
         result = full_settings
 
-    # Cache for 60 seconds
-    _settings_cache["data"] = result
-    _settings_cache["expires_at"] = now + timedelta(seconds=60)
-
+    cache.set("settings:public", result, 60)
     return result
 
 
@@ -494,6 +487,9 @@ async def get_sitemap_xml():
 async def flush_cache(current_user: dict = Depends(require_auth)):
     """Flush all caches (admin only)"""
     try:
+        # Flush the in-memory API cache
+        cache.flush()
+
         # Update a timestamp to invalidate browser caches
         settings = await db.settings.find_one({})
         if settings:
@@ -503,10 +499,12 @@ async def flush_cache(current_user: dict = Depends(require_auth)):
                 {'$set': {'cacheFlushTimestamp': settings['cacheFlushTimestamp']}}
             )
 
+        metrics = cache.get_metrics()
         return {
             "success": True,
-            "message": "Cache flushed successfully. Browser caches will be invalidated on next request.",
-            "timestamp": datetime.now(UTC).isoformat()
+            "message": "Cache flushed successfully. All in-memory API caches cleared.",
+            "timestamp": datetime.now(UTC).isoformat(),
+            "cache": metrics
         }
     except Exception as e:
         logger.error(f"Cache flush failed: {e}")

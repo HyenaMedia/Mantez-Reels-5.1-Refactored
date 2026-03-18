@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"Cache-Control\\\\|cache\\\\|caching\" /c/111_0/Mantez-Reels-4.9/.claude/worktrees/laughing-dijkstra/frontend/src --include=*.js --include=*.jsx)"
+    ]
+  }
+}

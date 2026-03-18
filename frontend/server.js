@@ -280,7 +280,16 @@ app.use('/static', express.static(path.join(BUILD_DIR, 'static'), {
   immutable: true
 }));
 
-// Serve favicon, manifest, robots.txt, etc.
+// Root static files — cached 1 week (rarely change, fixes WPT browser-caching 93→100)
+['/favicon.svg', '/favicon.ico', '/logo192.png', '/manifest.json'].forEach((file) => {
+  app.get(file, (req, res) => {
+    const filePath = path.join(BUILD_DIR, file);
+    res.set('Cache-Control', 'public, max-age=604800');
+    res.sendFile(filePath, (err) => { if (err) res.status(404).end(); });
+  });
+});
+
+// Serve remaining root static files (anything not matched above)
 app.use(express.static(BUILD_DIR, {
   index: false, // Don't serve index.html here
   maxAge: '1h'

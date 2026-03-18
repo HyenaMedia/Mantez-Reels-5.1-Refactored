@@ -12,6 +12,7 @@ import psutil
 from fastapi import APIRouter, Depends, HTTPException
 
 from auth import require_auth as get_current_user
+from services.cache_service import cache
 
 router = APIRouter(prefix="/api", tags=["metrics"])
 
@@ -78,8 +79,8 @@ async def get_dashboard_insights(current_user: dict = Depends(get_current_user))
         if cpu_percent > 95 or memory.percent > 95:
             server_status = "critical"
 
-        # Cache status (simplified - based on response times)
-        cache_status = "active" if avg_load_time < 100 else "inactive"
+        # Real cache metrics from the cache service
+        cache_metrics = cache.get_metrics()
 
         # Count recent errors
         cutoff = datetime.now(UTC) - timedelta(hours=24)
@@ -108,9 +109,12 @@ async def get_dashboard_insights(current_user: dict = Depends(get_current_user))
                     "status": "ok" if errors_count == 0 else "warning" if errors_count < 10 else "critical"
                 },
                 "cache_status": {
-                    "status": cache_status,
-                    "hit_rate": 0.85 if cache_status == "active" else 0,  # Simulated
-                    "size_mb": 45.2  # Simulated
+                    "status": "active" if cache_metrics["total_entries"] > 0 else "cold",
+                    "hit_rate": cache_metrics["hit_rate"],
+                    "size_mb": cache_metrics["size_estimate_mb"],
+                    "entries": cache_metrics["total_entries"],
+                    "hits": cache_metrics["hits"],
+                    "misses": cache_metrics["misses"]
                 },
                 "total_views": {
                     "count": metrics_store["page_views"],
@@ -199,15 +203,22 @@ async def get_detailed_insight(metric_type: str, current_user: dict = Depends(ge
             }
 
         elif metric_type == "cache":
+            cache_metrics = cache.get_metrics()
             return {
                 "success": True,
                 "metric": "cache",
                 "details": {
-                    "status": "active",
-                    "hit_rate": 0.85,
-                    "miss_rate": 0.15,
-                    "size_mb": 45.2,
-                    "entries": 1247,
+                    "status": "active" if cache_metrics["total_entries"] > 0 else "cold",
+                    "hit_rate": cache_metrics["hit_rate"],
+                    "miss_rate": round(1 - cache_metrics["hit_rate"], 3),
+                    "size_mb": cache_metrics["size_estimate_mb"],
+                    "entries": cache_metrics["total_entries"],
+                    "hits": cache_metrics["hits"],
+                    "misses": cache_metrics["misses"],
+                    "sets": cache_metrics["sets"],
+                    "evictions": cache_metrics["evictions"],
+                    "flushes": cache_metrics["flushes"],
+                    "uptime_seconds": cache_metrics["uptime_seconds"],
                     "compression": "gzip",
                     "max_age": "1 year for static assets"
                 }
@@ -259,3 +270,20 @@ async def reset_metrics(current_user: dict = Depends(get_current_user)):
         "last_reset": datetime.now(UTC)
     }
     return {"success": True, "message": "Metrics reset successfully"}
+
+
+@router.get("/dashboard/cache-status")
+async def get_cache_status(current_user: dict = Depends(get_current_user)):
+    """Lightweight cache metrics for topbar widget (avoids expensive psutil calls)"""
+    cache_metrics = cache.get_metrics()
+    return {
+        "success": True,
+        "cache": {
+            "hit_rate": cache_metrics["hit_rate"],
+            "entries": cache_metrics["total_entries"],
+            "size_mb": cache_metrics["size_estimate_mb"],
+            "hits": cache_metrics["hits"],
+            "misses": cache_metrics["misses"],
+            "status": "active" if cache_metrics["total_entries"] > 0 else "cold"
+        }
+    }
