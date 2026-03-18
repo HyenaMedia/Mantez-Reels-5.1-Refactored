@@ -32,7 +32,19 @@ const AdminFallback = () => (
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
 const API = `${BACKEND_URL}/api`;
 
-// Page titles now shown in AdminTopbar via PAGE_TITLES lookup
+const PAGE_INFO = {
+  dashboard: { title: 'Dashboard', subtitle: "Here's your overview" },
+  content: { title: 'Content', subtitle: 'Edit your website content' },
+  portfolio: { title: 'Portfolio', subtitle: 'Manage your work showcase' },
+  media: { title: 'Media Library', subtitle: 'Upload and manage files' },
+  messages: { title: 'Messages', subtitle: 'Contact form submissions' },
+  analytics: { title: 'Analytics', subtitle: 'Track site performance' },
+  users: { title: 'Users', subtitle: 'Manage admin users' },
+  security: { title: 'Security', subtitle: 'Monitor site security' },
+  integrations: { title: 'Integrations', subtitle: 'Third-party services' },
+  activity: { title: 'Activity Log', subtitle: 'Audit trail' },
+  settings: { title: 'Settings', subtitle: 'Configure your website' },
+};
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -82,8 +94,19 @@ const AdminDashboard = () => {
 
         <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
 
-        <div className={`transition-all duration-300 pt-12 ${isCollapsed ? 'ml-20' : 'ml-64'} relative z-0`}>
+        <div className={`transition-all duration-300 pt-4 ${isCollapsed ? 'ml-20' : 'ml-64'} relative z-0`}>
           <div className="p-6 lg:p-8">
+
+            {/* Page Header */}
+            {(() => {
+              const info = PAGE_INFO[activeTab] || PAGE_INFO.dashboard;
+              return (
+                <div className="mb-6">
+                  <h1 className="text-2xl font-bold text-white">{info.title}</h1>
+                  <p className="text-sm text-gray-500 mt-0.5">{info.subtitle}</p>
+                </div>
+              );
+            })()}
 
             {/* Default Password Warning */}
             {isDefaultPassword && (

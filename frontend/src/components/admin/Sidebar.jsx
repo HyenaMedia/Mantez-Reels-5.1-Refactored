@@ -10,7 +10,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Shield,
-  Sparkles,
   Palette,
   BarChart3,
   Plug,
@@ -186,30 +185,10 @@ const Sidebar = ({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }) => {
         bg-[#0a0a0f]/95 backdrop-blur-2xl border-r border-white/[0.06]
         ${isCollapsed ? 'w-20' : 'w-64'}`}
     >
-      {/* Logo Section */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-white/[0.06]">
-        {!isCollapsed && (
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
-              <Sparkles size={18} className="text-white" />
-            </div>
-            <div>
-              <span className="text-white font-bold text-sm">Mantez</span>
-              <span className="text-gray-500 text-xs block">Admin Panel</span>
-            </div>
-          </div>
-        )}
-        {isCollapsed && (
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/20 mx-auto">
-            <Sparkles size={18} className="text-white" />
-          </div>
-        )}
-      </div>
-
       {/* Collapse Toggle */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-[#1a1a24] border border-white/10 
+        className="absolute -right-3 top-6 w-6 h-6 rounded-full bg-[#1a1a24] border border-white/10 
           flex items-center justify-center text-gray-400 hover:text-white hover:bg-violet-600 
           transition-all duration-200 shadow-lg z-50"
       >
@@ -217,7 +196,7 @@ const Sidebar = ({ activeTab, setActiveTab, isCollapsed, setIsCollapsed }) => {
       </button>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-6 h-[calc(100vh-180px)]">
+      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-6 h-[calc(100vh-4rem)]">
         {menuSections.map((section, sectionIndex) => (
           <div key={sectionIndex}>
             {/* Section Title */}
