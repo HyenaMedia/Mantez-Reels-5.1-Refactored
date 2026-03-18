@@ -8,13 +8,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const BUILD_DIR = path.join(__dirname, 'build');
 const IS_RENDER = !!process.env.RENDER;
+const IS_PRODUCTION = IS_RENDER || !!process.env.RAILWAY_ENVIRONMENT || process.env.NODE_ENV === 'production';
 
 // Utility: process HTML for production — strips testing scripts & injects perf hints
 // NOTE: CRA build output uses defer="defer" (not bare defer), so regex must be flexible.
 function processHtml(html) {
   const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
 
-  if (IS_RENDER) {
+  if (IS_PRODUCTION) {
     // Strip rrweb scripts (flexible regex handles defer vs defer="defer")
     html = html
       .replace(/<script[^>]+src="https:\/\/unpkg\.com\/rrweb[^"]*"[^>]*><\/script>/g, '')
@@ -71,7 +72,7 @@ app.use((req, res, next) => {
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
   
   // Prevent clickjacking — only in production (dev preview uses iframes)
-  if (IS_RENDER) {
+  if (IS_PRODUCTION) {
     res.setHeader('X-Frame-Options', 'DENY');
   }
   
@@ -100,10 +101,10 @@ app.use((req, res, next) => {
     "img-src 'self' data: https: blob:",
     `connect-src 'self' ${backendUrl}`,
     // frame-ancestors 'none' only in production — dev preview needs iframe access
-    IS_RENDER ? "frame-ancestors 'none'" : "frame-ancestors *",
+    IS_PRODUCTION ? "frame-ancestors 'none'" : "frame-ancestors *",
     "base-uri 'self'",
     "form-action 'self'",
-    IS_RENDER ? "upgrade-insecure-requests" : ""
+    IS_PRODUCTION ? "upgrade-insecure-requests" : ""
   ].filter(Boolean).join('; ');
   res.setHeader('Content-Security-Policy', csp);
   
@@ -158,10 +159,11 @@ app.get('/health', (req, res) => {
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   res.json({
     status: 'ok',
-    environment: IS_RENDER ? 'render_production' : 'development',
+    environment: IS_PRODUCTION ? 'production' : 'development',
+    platform: IS_RENDER ? 'render' : (process.env.RAILWAY_ENVIRONMENT ? 'railway' : 'other'),
     build: {
       exists: fs.existsSync(indexHtmlPath),
-      rrweb_stripped: IS_RENDER,
+      rrweb_stripped: IS_PRODUCTION,
     },
     backend: {
       configured: !!backendUrl,
